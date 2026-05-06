@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <client_script><![CDATA[function($scope) {
+    var c = this;
+    // Page title and description driven by options set on the widget instance
+    c.pageTitle = c.options.page_title || 'IDP Page';
+    c.pageDesc = c.options.page_description || 'This page is under construction.';
+    c.catalogData = c.data.catalogData || {};
+    c.hasItems = Object.keys(c.catalogData).length > 0;
+}
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css><![CDATA[.idp-placeholder { padding: 2rem; }
+.idp-placeholder-title { font-size: 1.75rem; font-weight: 300; color: var(--cds-text-01, #161616); margin-bottom: 0.5rem; }
+.idp-placeholder-desc { font-size: 0.875rem; color: var(--cds-text-02, #525252); margin-bottom: 2rem; }
+.idp-catalog-group { margin-bottom: 2rem; }
+.idp-catalog-group-title {
+  font-size: 1rem; font-weight: 600; color: var(--cds-text-01, #161616);
+  padding-bottom: 0.5rem; border-bottom: 1px solid var(--cds-ui-03, #e0e0e0); margin-bottom: 1rem;
+}
+.idp-catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background-color: var(--cds-ui-03, #e0e0e0); }
+.idp-catalog-card {
+  background-color: var(--cds-ui-02, #fff); padding: 1rem;
+  cursor: pointer; transition: background-color 70ms; min-height: 80px;
+}
+.idp-catalog-card:hover { background-color: var(--cds-hover-ui, #e5e5e5); }
+.idp-catalog-card-name { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--cds-text-01, #161616); }
+.idp-catalog-card-desc { font-size: 0.75rem; color: var(--cds-text-02, #525252); }
+.idp-catalog-card-meta { margin-top: 0.5rem; display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.idp-tag { display: inline-flex; align-items: center; padding: 0 0.5rem; height: 1.25rem; border-radius: 0.625rem; font-size: 0.6875rem; background-color: var(--cds-ui-03, #e0e0e0); color: var(--cds-text-02, #525252); }
+.idp-tag-alpha { background-color: #fdd13a; color: #3e2400; }
+.idp-tag-beta { background-color: #d0e2ff; color: #0043ce; }
+.idp-tag-ga { background-color: #defbe6; color: #0e6027; }
+.idp-empty { padding: 3rem 2rem; text-align: center; color: var(--cds-text-02, #525252); background-color: var(--cds-ui-01, #f4f4f4); border: 1px dashed var(--cds-ui-04, #8d8d8d); }
+]]></css>
+        <demo_data/>
+        <description>IDP Catalog Page widget — displays capability-filtered catalog items grouped by taxonomy. Used on idp_catalog, idp_pipelines, idp_risk_dashboard, idp_approvals, and idp_api_explorer pages. Page title and description configurable via widget instance options.</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>idp_catalog_page</id>
+        <internal>false</internal>
+        <link/>
+        <name>IDP Catalog Page</name>
+        <option_schema><![CDATA[[
+  {"name":"page_title","label":"Page Title","hint":"Displayed as the page heading","default_value":"Service Catalog","fieldType":"String"},
+  {"name":"page_description","label":"Page Description","hint":"Subtitle shown below the heading","default_value":"Browse and request platform services.","fieldType":"String"},
+  {"name":"filter_taxonomy","label":"Filter by Taxonomy Name","hint":"Leave blank to show all accessible items. Enter taxonomy name to filter (e.g. CI/CD Services).","default_value":"","fieldType":"String"}
+]]]></option_schema>
+        <public>false</public>
+        <roles>x_146833_idpkiro.user</roles>
+        <script><![CDATA[(function() {
+    var userId = gs.getUserID();
+    var filterTaxonomy = options.filter_taxonomy || '';
+
+    var catalogEngine = new x_146833_idpkiro.IDPCatalogEngine();
+    var grouped = catalogEngine.filterCatalogForPortal(userId);
+
+    // Apply taxonomy filter if set
+    if (filterTaxonomy) {
+        var filtered = {};
+        for (var key in grouped) {
+            if (key.toLowerCase().indexOf(filterTaxonomy.toLowerCase()) !== -1) {
+                filtered[key] = grouped[key];
+            }
+        }
+        data.catalogData = filtered;
+    } else {
+        data.catalogData = grouped;
+    }
+})();
+]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 05:10:00</sys_created_on>
+        <sys_id>w004000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDP Catalog Page</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_ux_page_w004000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 05:10:00</sys_updated_on>
+        <template><![CDATA[<div class="idp-placeholder">
+  <h1 class="idp-placeholder-title">{{c.pageTitle}}</h1>
+  <p class="idp-placeholder-desc">{{c.pageDesc}}</p>
+
+  <!-- Catalog items grouped by taxonomy -->
+  <div ng-if="c.hasItems">
+    <div class="idp-catalog-group" ng-repeat="(groupName, items) in c.catalogData">
+      <h2 class="idp-catalog-group-title">{{groupName}}</h2>
+      <div class="idp-catalog-grid">
+        <a class="idp-catalog-card"
+           ng-repeat="item in items"
+           href="/idpkiro?id=sc_cat_item&sys_id={{item.sys_id}}">
+          <div class="idp-catalog-card-name">{{item.name}}</div>
+          <div class="idp-catalog-card-desc">{{item.short_description}}</div>
+          <div class="idp-catalog-card-meta">
+            <span class="idp-tag idp-tag-{{item.lifecycle_stage}}" ng-if="item.lifecycle_stage">
+              {{item.lifecycle_stage}}
+            </span>
+            <span class="idp-tag" ng-if="item.tags">{{item.tags}}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="idp-empty" ng-if="!c.hasItems">
+    <p>No services available for your current capabilities.</p>
+    <p>Contact your Platform Administrator to request access.</p>
+  </div>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>

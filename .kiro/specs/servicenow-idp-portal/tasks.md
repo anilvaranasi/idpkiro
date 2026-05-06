@@ -89,7 +89,7 @@ All tasks below correspond to ServiceNow XML update set files committed to the s
 
 - [ ]* 9.1 Import update set into ServiceNow instance and resolve any conflicts
 - [ ]* 9.2 Assign IDP roles to test users and validate navigation rendering per persona
-- [ ]* 9.3 Create portal pages (sp_page) for idp_kiro_home, idp_observability, idp_catalog, idp_pipelines, idp_api_explorer, idp_risk_dashboard, idp_approvals and add widgets to page layouts
+- [x]* 9.3 Create portal pages (sp_page) for idp_kiro_home, idp_observability, idp_catalog, idp_pipelines, idp_api_explorer, idp_risk_dashboard, idp_approvals and add widgets to page layouts
 - [ ]* 9.4 Configure AI provider: set x_146833_idpkiro.ai.enabled=true, set endpoint and api_key system properties
 - [ ]* 9.5 Create Service Catalog items with u_required_capabilities and u_taxonomy fields populated
 - [ ]* 9.6 Wire GitLab CI/CD integration to cap_create_pipeline and cap_deploy_service capabilities via u_execution_endpoint on catalog items
