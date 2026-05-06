@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <client_script><![CDATA[function($scope, $http, $interval) {
+    var c = this;
+    c.metrics = c.data.metrics || {};
+    c.trends = c.data.trends || {};
+    c.viewLevel = c.data.viewLevel || 'limited';
+    c.lastRefresh = new Date();
+    c.refreshing = false;
+
+    function refreshMetrics() {
+        c.refreshing = true;
+        $http.get('/api/x_146833_idpkiro/observability/metrics')
+            .then(function(response) {
+                if (response.data && response.data.result) {
+                    c.metrics = response.data.result.metrics || c.metrics;
+                    c.lastRefresh = new Date();
+                }
+            })
+            .catch(function() {
+                // Keep stale data, show staleness indicator
+            })
+            .finally(function() {
+                c.refreshing = false;
+            });
+    }
+
+    // Auto-refresh every 60 seconds
+    var refreshInterval = $interval(refreshMetrics, 60000);
+    $scope.$on('$destroy', function() { $interval.cancel(refreshInterval); });
+
+    c.getAvailabilityClass = function(pct) {
+        if (pct === null || pct === undefined) return '';
+        if (pct < 95) return 'critical';
+        if (pct < 99.5) return 'warning';
+        return 'healthy';
+    };
+
+    c.formatPct = function(val) {
+        if (val === null || val === undefined) return 'N/A';
+        return parseFloat(val).toFixed(1) + '%';
+    };
+
+    c.formatHours = function(val) {
+        if (val === null || val === undefined) return 'N/A';
+        return parseFloat(val).toFixed(1) + 'h';
+    };
+}
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css><![CDATA[/* IDP Observability Dashboard Widget */
+.idp-obs { padding: 2rem; }
+.idp-obs-title { font-size: 1.75rem; font-weight: 300; margin-bottom: 0.25rem; color: var(--cds-text-01, #161616); }
+.idp-obs-subtitle { font-size: 0.875rem; color: var(--cds-text-02, #525252); margin-bottom: 2rem; }
+.idp-obs-refresh { font-size: 0.75rem; color: var(--cds-text-03, #a8a8a8); }
+
+/* Status tiles grid */
+.idp-obs-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background-color: var(--cds-ui-03, #e0e0e0);
+  margin-bottom: 2rem;
+}
+.idp-obs-tile {
+  background-color: var(--cds-ui-02, #fff);
+  padding: 1.5rem;
+  position: relative;
+  min-height: 120px;
+}
+.idp-obs-tile.healthy { border-top: 3px solid var(--cds-support-02, #198038); }
+.idp-obs-tile.warning { border-top: 3px solid var(--cds-support-03, #f1c21b); background-color: #fdf6dd; }
+.idp-obs-tile.critical { border-top: 3px solid var(--cds-support-01, #da1e28); background-color: #fff1f1; }
+.idp-obs-tile-label { font-size: 0.75rem; color: var(--cds-text-02, #525252); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.32px; }
+.idp-obs-tile-value { font-size: 2.5rem; font-weight: 300; line-height: 1; color: var(--cds-text-01, #161616); }
+.idp-obs-tile-value.warning { color: #8a6914; }
+.idp-obs-tile-value.critical { color: var(--cds-support-01, #da1e28); }
+.idp-obs-tile-sub { font-size: 0.75rem; color: var(--cds-text-02, #525252); margin-top: 0.5rem; }
+
+/* Trend section */
+.idp-obs-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cds-text-01, #161616);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cds-ui-03, #e0e0e0);
+}
+.idp-obs-trends { margin-bottom: 2rem; }
+.idp-trend-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.idp-trend-table th {
+  text-align: left;
+  padding: 0.5rem 1rem;
+  background-color: var(--cds-ui-01, #f4f4f4);
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--cds-text-02, #525252);
+  border-bottom: 1px solid var(--cds-ui-03, #e0e0e0);
+}
+.idp-trend-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--cds-ui-03, #e0e0e0);
+  color: var(--cds-text-01, #161616);
+}
+.idp-trend-table tr:hover td { background-color: var(--cds-hover-ui, #e5e5e5); }
+
+/* Dependency map placeholder */
+.idp-dep-map {
+  background-color: var(--cds-ui-01, #f4f4f4);
+  border: 1px dashed var(--cds-ui-04, #8d8d8d);
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--cds-text-02, #525252);
+  margin-bottom: 2rem;
+}
+.idp-dep-map-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+.idp-dep-map-sub { font-size: 0.875rem; }
+
+/* Incident severity badges */
+.idp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  height: 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin-right: 0.25rem;
+}
+.idp-badge-critical { background-color: #ffd7d9; color: #750e13; }
+.idp-badge-high { background-color: #ffd7d9; color: #750e13; }
+.idp-badge-medium { background-color: #fdd13a; color: #3e2400; }
+.idp-badge-low { background-color: #d0e2ff; color: #0043ce; }
+]]></css>
+        <demo_data/>
+        <description>IDP Observability Dashboard — real-time platform health tiles, trend graphs, and service dependency map placeholder. Role-filtered views: SRE full, Developer limited, Product Owner summary.</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>idp_observability_dashboard</id>
+        <internal>false</internal>
+        <link/>
+        <name>IDP Observability Dashboard</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_146833_idpkiro.user</roles>
+        <script><![CDATA[(function() {
+    var userId = gs.getUserID();
+
+    // Determine view level based on role
+    var viewLevel = 'limited'; // app_developer default
+    if (gs.hasRole('x_146833_idpkiro.platform_admin') || gs.hasRole('x_146833_idpkiro.sre')) {
+        viewLevel = 'full';
+    } else if (gs.hasRole('x_146833_idpkiro.platform_engineer')) {
+        viewLevel = 'full';
+    } else if (gs.hasRole('x_146833_idpkiro.product_owner')) {
+        viewLevel = 'summary';
+    }
+    data.viewLevel = viewLevel;
+
+    var metrics = {};
+
+    // Deployment success rate (last 7 days)
+    var totalDep = new GlideRecord('change_request');
+    totalDep.addQuery('type', 'standard');
+    totalDep.addQuery('sys_created_on', '>=', gs.daysAgoStart(7));
+    var totalCount = totalDep.getRowCount();
+
+    var successDep = new GlideRecord('change_request');
+    successDep.addQuery('type', 'standard');
+    successDep.addQuery('sys_created_on', '>=', gs.daysAgoStart(7));
+    successDep.addQuery('state', 3);
+    var successCount = successDep.getRowCount();
+
+    metrics.deployment_success_rate = totalCount > 0 ? Math.round((successCount / totalCount) * 1000) / 10 : null;
+    metrics.total_deployments_7d = totalCount;
+
+    // Active incidents by severity
+    metrics.incidents = { critical: 0, high: 0, medium: 0, low: 0, total: 0 };
+    var incGr = new GlideRecord('incident');
+    incGr.addQuery('active', true);
+    incGr.query();
+    while (incGr.next()) {
+        var sev = incGr.getValue('severity');
+        metrics.incidents.total++;
+        if (sev === '1') metrics.incidents.critical++;
+        else if (sev === '2') metrics.incidents.high++;
+        else if (sev === '3') metrics.incidents.medium++;
+        else metrics.incidents.low++;
+    }
+
+    // MTTR — average resolution time for incidents closed in last 30 days (hours)
+    if (viewLevel === 'full') {
+        var resolvedInc = new GlideRecord('incident');
+        resolvedInc.addQuery('active', false);
+        resolvedInc.addQuery('resolved_at', '>=', gs.daysAgoStart(30));
+        resolvedInc.query();
+        var totalHours = 0;
+        var resolvedCount = 0;
+        while (resolvedInc.next()) {
+            var opened = resolvedInc.getDisplayValue('opened_at');
+            var resolved = resolvedInc.getDisplayValue('resolved_at');
+            if (opened && resolved) {
+                var openedDt = new GlideDateTime(opened);
+                var resolvedDt = new GlideDateTime(resolved);
+                var diffMs = resolvedDt.getNumericValue() - openedDt.getNumericValue();
+                if (diffMs > 0) {
+                    totalHours += diffMs / 3600000;
+                    resolvedCount++;
+                }
+            }
+        }
+        metrics.mttr_hours = resolvedCount > 0 ? Math.round((totalHours / resolvedCount) * 10) / 10 : null;
+    }
+
+    // Service availability — from monitored CIs (placeholder: use cmdb_ci_service)
+    metrics.services = [];
+    var svcGr = new GlideRecord('cmdb_ci_service');
+    svcGr.addQuery('operational_status', 1); // Operational
+    svcGr.setLimit(10);
+    svcGr.query();
+    while (svcGr.next()) {
+        // Availability placeholder — real data would come from monitoring integration
+        metrics.services.push({
+            name: svcGr.getValue('name'),
+            availability: 99.9, // Placeholder
+            status: 'healthy'
+        });
+    }
+
+    data.metrics = metrics;
+
+    // Trend data (7-day and 30-day deployment counts)
+    var trends = { weekly: [], monthly: [] };
+    for (var d = 6; d >= 0; d--) {
+        var dayGr = new GlideRecord('change_request');
+        dayGr.addQuery('type', 'standard');
+        dayGr.addQuery('sys_created_on', '>=', gs.daysAgoStart(d + 1));
+        dayGr.addQuery('sys_created_on', '<', gs.daysAgoStart(d));
+        trends.weekly.push({ day: 'Day -' + d, count: dayGr.getRowCount() });
+    }
+    data.trends = trends;
+})();
+]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 04:02:00</sys_created_on>
+        <sys_id>w003000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDP Observability Dashboard</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_ux_page_w003000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 04:02:00</sys_updated_on>
+        <template><![CDATA[<div class="idp-obs">
+  <h1 class="idp-obs-title">Platform Health</h1>
+  <p class="idp-obs-subtitle">
+    Real-time platform observability dashboard
+    <span class="idp-obs-refresh" ng-if="!c.refreshing"> &mdash; Auto-refreshes every 60s</span>
+    <span class="idp-obs-refresh" ng-if="c.refreshing"> &mdash; Refreshing...</span>
+  </p>
+
+  <!-- Status Tiles -->
+  <h2 class="idp-obs-section-title">Status Overview</h2>
+  <div class="idp-obs-tiles">
+    <!-- Deployment Success Rate — all roles -->
+    <div class="idp-obs-tile" ng-class="c.getAvailabilityClass(c.metrics.deployment_success_rate)">
+      <div class="idp-obs-tile-label">Deployment Success Rate</div>
+      <div class="idp-obs-tile-value" ng-class="c.getAvailabilityClass(c.metrics.deployment_success_rate)">
+        {{c.formatPct(c.metrics.deployment_success_rate)}}
+      </div>
+      <div class="idp-obs-tile-sub">{{c.metrics.total_deployments_7d || 0}} deployments in 7 days</div>
+    </div>
+
+    <!-- Active Incidents — all roles -->
+    <div class="idp-obs-tile" ng-class="c.metrics.incidents.total > 0 ? 'warning' : 'healthy'">
+      <div class="idp-obs-tile-label">Active Incidents</div>
+      <div class="idp-obs-tile-value" ng-class="c.metrics.incidents.total > 0 ? 'warning' : ''">
+        {{c.metrics.incidents.total || 0}}
+      </div>
+      <div class="idp-obs-tile-sub" ng-if="c.viewLevel === 'full'">
+        <span class="idp-badge idp-badge-critical">{{c.metrics.incidents.critical}} Critical</span>
+        <span class="idp-badge idp-badge-high">{{c.metrics.incidents.high}} High</span>
+      </div>
+    </div>
+
+    <!-- MTTR — SRE / Platform Admin / Platform Engineer only -->
+    <div class="idp-obs-tile healthy" ng-if="c.viewLevel === 'full'">
+      <div class="idp-obs-tile-label">Mean Time to Recover</div>
+      <div class="idp-obs-tile-value">{{c.formatHours(c.metrics.mttr_hours)}}</div>
+      <div class="idp-obs-tile-sub">Last 30 days</div>
+    </div>
+
+    <!-- Service Availability tiles -->
+    <div class="idp-obs-tile"
+         ng-repeat="svc in c.metrics.services"
+         ng-class="c.getAvailabilityClass(svc.availability)">
+      <div class="idp-obs-tile-label">{{svc.name}}</div>
+      <div class="idp-obs-tile-value" ng-class="c.getAvailabilityClass(svc.availability)">
+        {{c.formatPct(svc.availability)}}
+      </div>
+      <div class="idp-obs-tile-sub">Availability</div>
+    </div>
+  </div>
+
+  <!-- Trend Graphs — table representation (full and summary views) -->
+  <div class="idp-obs-trends" ng-if="c.viewLevel !== 'limited'">
+    <h2 class="idp-obs-section-title">Deployment Trends (7-Day)</h2>
+    <table class="idp-trend-table">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Deployments</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="row in c.data.trends.weekly">
+          <td>{{row.day}}</td>
+          <td>{{row.count}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Service Dependency Map — SRE / full view only -->
+  <div ng-if="c.viewLevel === 'full'">
+    <h2 class="idp-obs-section-title">Service Dependency Map</h2>
+    <div class="idp-dep-map">
+      <div class="idp-dep-map-title">🗺 Service Topology</div>
+      <div class="idp-dep-map-sub">
+        Dynamic service dependency visualization will be rendered here once the monitoring integration is connected.<br/>
+        <em>Placeholder — future integration with ServiceNow Discovery / external APM.</em>
+      </div>
+    </div>
+  </div>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>

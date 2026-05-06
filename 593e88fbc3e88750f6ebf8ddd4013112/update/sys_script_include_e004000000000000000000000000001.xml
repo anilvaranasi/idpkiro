@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPAIOrchestrator</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>IDP AI Orchestration Layer — placeholder implementation for AI-assisted platform capabilities. Provides /ai/ask, /ai/recommend, /ai/summarize endpoints. Designed to connect to external AI providers (AWS Bedrock, ServiceNow Now Assist, or custom LLMs) without modifying portal widgets.</description>
+        <name>IDPAIOrchestrator</name>
+        <script><![CDATA[var IDPAIOrchestrator = Class.create();
+IDPAIOrchestrator.prototype = {
+
+    initialize: function() {
+        // AI provider configuration — set via System Properties
+        this.providerEnabled = gs.getProperty('x_146833_idpkiro.ai.enabled', 'false') === 'true';
+        this.providerEndpoint = gs.getProperty('x_146833_idpkiro.ai.endpoint', '');
+        this.providerApiKey = gs.getProperty('x_146833_idpkiro.ai.api_key', '');
+        this.maxResponseLength = 2000;
+    },
+
+    /**
+     * /ai/ask — Answer a free-text question about the platform.
+     *
+     * @param {string} question - The user's question
+     * @param {string} userId - sys_id of the requesting user
+     * @returns {Object} { answer: string, source: string, confidence: number }
+     */
+    ask: function(question, userId) {
+        try {
+            if (!question || question.trim() === '') {
+                return this._errorResponse('Question cannot be empty.');
+            }
+
+            // Validate user has IDP access
+            if (!gs.hasRole('x_146833_idpkiro.user')) {
+                return this._errorResponse('Access denied.');
+            }
+
+            if (!this.providerEnabled) {
+                return this._placeholderResponse('ask', question);
+            }
+
+            return this._callProvider('ask', { question: question, userId: userId });
+
+        } catch (e) {
+            gs.logError('IDPAIOrchestrator.ask error: ' + e.message, 'IDPAIOrchestrator');
+            return this._unavailableResponse();
+        }
+    },
+
+    /**
+     * /ai/recommend — Return recommended catalog items or actions based on context.
+     *
+     * @param {Object} context - { userId, currentPage, recentActions, incidentSysId }
+     * @returns {Object} { recommendations: [{ type, title, url, reason }] }
+     */
+    recommend: function(context) {
+        try {
+            if (!context) {
+                return { recommendations: [] };
+            }
+
+            if (!this.providerEnabled) {
+                return this._placeholderRecommendations(context);
+            }
+
+            return this._callProvider('recommend', context);
+
+        } catch (e) {
+            gs.logError('IDPAIOrchestrator.recommend error: ' + e.message, 'IDPAIOrchestrator');
+            return { recommendations: [] };
+        }
+    },
+
+    /**
+     * /ai/summarize — Summarize a ServiceNow record (incident, change, deployment).
+     *
+     * @param {string} tableName - e.g. 'incident', 'change_request'
+     * @param {string} recordSysId - sys_id of the record to summarize
+     * @returns {Object} { summary: string, key_points: [], suggested_actions: [] }
+     */
+    summarize: function(tableName, recordSysId) {
+        try {
+            if (!tableName || !recordSysId) {
+                return this._errorResponse('Table name and record sys_id are required.');
+            }
+
+            // Fetch record data
+            var gr = new GlideRecord(tableName);
+            if (!gr.get(recordSysId)) {
+                return this._errorResponse('Record not found.');
+            }
+
+            var recordData = this._extractRecordData(gr, tableName);
+
+            if (!this.providerEnabled) {
+                return this._placeholderSummary(tableName, recordData);
+            }
+
+            return this._callProvider('summarize', { table: tableName, record: recordData });
+
+        } catch (e) {
+            gs.logError('IDPAIOrchestrator.summarize error: ' + e.message, 'IDPAIOrchestrator');
+            return this._unavailableResponse();
+        }
+    },
+
+    /**
+     * Event hook handler — called by Business Rules when incidents are created.
+     * Generates an AI summary and stores it on the incident record.
+     *
+     * @param {string} incidentSysId
+     */
+    onIncidentCreated: function(incidentSysId) {
+        try {
+            var result = this.summarize('incident', incidentSysId);
+            if (result && result.summary) {
+                var inc = new GlideRecord('incident');
+                if (inc.get(incidentSysId)) {
+                    // Store summary in work notes
+                    inc.work_notes = '[AI Summary] ' + result.summary;
+                    if (result.suggested_actions && result.suggested_actions.length > 0) {
+                        inc.work_notes += '\n\nSuggested Actions:\n' + result.suggested_actions.join('\n');
+                    }
+                    inc.update();
+                }
+            }
+        } catch (e) {
+            gs.logError('IDPAIOrchestrator.onIncidentCreated error: ' + e.message, 'IDPAIOrchestrator');
+        }
+    },
+
+    /**
+     * Event hook handler — called when a CI/CD deployment fails.
+     * Generates root cause suggestions.
+     *
+     * @param {string} changeRequestSysId
+     */
+    onDeploymentFailure: function(changeRequestSysId) {
+        try {
+            var result = this.recommend({
+                type: 'deployment_failure',
+                recordTable: 'change_request',
+                recordSysId: changeRequestSysId
+            });
+
+            if (result && result.recommendations && result.recommendations.length > 0) {
+                var cr = new GlideRecord('change_request');
+                if (cr.get(changeRequestSysId)) {
+                    var notes = '[AI Root Cause Analysis]\n';
+                    for (var i = 0; i < result.recommendations.length; i++) {
+                        notes += '• ' + result.recommendations[i].title + ': ' + result.recommendations[i].reason + '\n';
+                    }
+                    cr.work_notes = notes;
+                    cr.update();
+                }
+            }
+        } catch (e) {
+            gs.logError('IDPAIOrchestrator.onDeploymentFailure error: ' + e.message, 'IDPAIOrchestrator');
+        }
+    },
+
+    // ---- Private helpers ----
+
+    _callProvider: function(operation, payload) {
+        try {
+            var rm = new sn_ws.RESTMessageV2();
+            rm.setEndpoint(this.providerEndpoint + '/' + operation);
+            rm.setHttpMethod('POST');
+            rm.setRequestHeader('Content-Type', 'application/json');
+            rm.setRequestHeader('Authorization', 'Bearer ' + this.providerApiKey);
+            rm.setRequestBody(JSON.stringify(payload));
+            rm.setHttpTimeout(15000);
+
+            var response = rm.execute();
+            var statusCode = response.getStatusCode();
+
+            if (statusCode === 200) {
+                return JSON.parse(response.getBody());
+            } else {
+                gs.logWarning('IDPAIOrchestrator provider returned ' + statusCode, 'IDPAIOrchestrator');
+                return this._unavailableResponse();
+            }
+        } catch (e) {
+            gs.logError('IDPAIOrchestrator._callProvider error: ' + e.message, 'IDPAIOrchestrator');
+            return this._unavailableResponse();
+        }
+    },
+
+    _extractRecordData: function(gr, tableName) {
+        var data = { table: tableName, sys_id: gr.getUniqueValue() };
+        var fields = ['number', 'short_description', 'description', 'state', 'priority', 'severity', 'category', 'assignment_group', 'assigned_to', 'opened_at', 'resolved_at'];
+        for (var i = 0; i < fields.length; i++) {
+            try { data[fields[i]] = gr.getDisplayValue(fields[i]); } catch (e) {}
+        }
+        return data;
+    },
+
+    _placeholderResponse: function(operation, question) {
+        return {
+            answer: 'AI service is not yet configured. To enable AI capabilities, set the system property x_146833_idpkiro.ai.enabled=true and configure the provider endpoint. Your question was: "' + question + '"',
+            source: 'placeholder',
+            confidence: 0
+        };
+    },
+
+    _placeholderRecommendations: function(context) {
+        var recs = [
+            { type: 'catalog_item', title: 'Create New Microservice', url: '/idpkiro?id=sc_cat_item&sys_id=', reason: 'Based on your recent activity' },
+            { type: 'catalog_item', title: 'Provision CI/CD Pipeline', url: '/idpkiro?id=sc_cat_item&sys_id=', reason: 'Common next step for new services' },
+            { type: 'knowledge', title: 'Platform Onboarding Guide', url: '/idpkiro?id=kb_article', reason: 'Recommended for new platform users' }
+        ];
+        return { recommendations: recs };
+    },
+
+    _placeholderSummary: function(tableName, recordData) {
+        return {
+            summary: 'AI summarization is not yet configured. Record: ' + (recordData.number || recordData.sys_id) + ' (' + tableName + '). Short description: ' + (recordData.short_description || 'N/A'),
+            key_points: ['AI provider not configured — set x_146833_idpkiro.ai.enabled=true'],
+            suggested_actions: ['Configure AI provider endpoint in System Properties']
+        };
+    },
+
+    _errorResponse: function(message) {
+        return { error: true, message: message };
+    },
+
+    _unavailableResponse: function() {
+        return {
+            answer: 'The AI service is temporarily unavailable. Please try again later.',
+            source: 'error',
+            confidence: 0
+        };
+    },
+
+    type: 'IDPAIOrchestrator'
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 04:10:00</sys_created_on>
+        <sys_id>e004000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPAIOrchestrator</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_script_include_e004000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 04:10:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

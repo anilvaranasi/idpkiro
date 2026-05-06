@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <client_script><![CDATA[function($scope, $http, spUtil) {
+    var c = this;
+    c.navTree = [];
+    c.collapsed = false;
+    c.loading = true;
+    c.currentUrl = window.location.href;
+
+    // Load navigation via GlideAjax
+    function loadNavigation() {
+        c.loading = true;
+        var ga = new GlideAjax('x_146833_idpkiro.IDPNavigationEngine');
+        ga.addParam('sysparm_name', 'ajaxGetNavigation');
+        ga.getXMLAnswer(function(answer) {
+            try {
+                var tree = JSON.parse(answer);
+                c.navTree = tree.taxonomies || [];
+            } catch (e) {
+                c.navTree = [];
+            }
+            c.loading = false;
+            $scope.$apply();
+        });
+    }
+
+    c.toggleCollapse = function() {
+        c.collapsed = !c.collapsed;
+        // Persist collapse state in session storage
+        try {
+            sessionStorage.setItem('idp_nav_collapsed', c.collapsed ? '1' : '0');
+        } catch (e) {}
+    };
+
+    c.isActive = function(url) {
+        return c.currentUrl.indexOf(url) !== -1;
+    };
+
+    // Restore collapse state
+    try {
+        c.collapsed = sessionStorage.getItem('idp_nav_collapsed') === '1';
+    } catch (e) {}
+
+    loadNavigation();
+}
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css><![CDATA[.idp-side-nav {
+  position: relative;
+  height: 100%;
+  background-color: var(--cds-ui-01, #f4f4f4);
+  border-right: 1px solid var(--cds-ui-03, #e0e0e0);
+  transition: width 110ms cubic-bezier(0.2, 0, 1, 0.9);
+  overflow: hidden;
+  width: 256px;
+  min-height: 100vh;
+}
+.idp-side-nav.collapsed { width: 48px; }
+.idp-nav-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px;
+  border-bottom: 1px solid var(--cds-ui-03, #e0e0e0);
+  cursor: pointer;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+}
+.idp-nav-toggle:hover { background-color: var(--cds-hover-ui, #e5e5e5); }
+.idp-nav-group { margin-bottom: 4px; }
+.idp-nav-group-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cds-text-02, #525252);
+  text-transform: uppercase;
+  letter-spacing: 0.32px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.idp-nav-group-icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin-right: 8px;
+  fill: var(--cds-icon-02, #525252);
+}
+.idp-nav-group-label { overflow: hidden; white-space: nowrap; }
+.idp-nav-item {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 16px 0 32px;
+  color: var(--cds-text-02, #525252);
+  text-decoration: none;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+.idp-nav-item:hover {
+  background-color: var(--cds-hover-ui, #e5e5e5);
+  color: var(--cds-text-01, #161616);
+  text-decoration: none;
+}
+.idp-nav-item.active {
+  background-color: var(--cds-selected-ui, #e0e0e0);
+  color: var(--cds-text-01, #161616);
+  font-weight: 600;
+  border-left: 3px solid var(--cds-interactive-01, #0f62fe);
+}
+.idp-nav-item-icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin-right: 8px;
+  fill: var(--cds-icon-02, #525252);
+}
+.idp-nav-item-label { overflow: hidden; white-space: nowrap; }
+.collapsed .idp-nav-group-label,
+.collapsed .idp-nav-item-label { display: none; }
+.collapsed .idp-nav-item { padding: 0 16px; justify-content: center; }
+.collapsed .idp-nav-group-header { padding: 8px; justify-content: center; }
+.idp-nav-loading {
+  padding: 16px;
+  color: var(--cds-text-03, #a8a8a8);
+  font-size: 0.875rem;
+}
+]]></css>
+        <demo_data/>
+        <description>IDP Dynamic Navigation — capability-driven left navigation widget. Calls IDPNavigationEngine via GlideAjax and renders taxonomy-grouped menu items. No hardcoded items.</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>idp_dynamic_navigation</id>
+        <internal>false</internal>
+        <link/>
+        <name>IDP Dynamic Navigation</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_146833_idpkiro.user</roles>
+        <script><![CDATA[(function() {
+    // Server-side: nothing needed — navigation is built client-side via GlideAjax
+    data.user_name = gs.getUserDisplayName();
+})();
+]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 04:00:00</sys_created_on>
+        <sys_id>w001000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDP Dynamic Navigation</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_ux_page_w001000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 04:00:00</sys_updated_on>
+        <template><![CDATA[<div class="idp-side-nav" ng-class="{collapsed: c.collapsed}">
+  <!-- Toggle button -->
+  <button class="idp-nav-toggle" ng-click="c.toggleCollapse()" aria-label="Toggle navigation">
+    <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor">
+      <path ng-if="!c.collapsed" d="M24 9.4L22.6 8 16 14.6 9.4 8 8 9.4l6.6 6.6L8 22.6 9.4 24l6.6-6.6 6.6 6.6 1.4-1.4-6.6-6.6z"/>
+      <path ng-if="c.collapsed" d="M17 22l-1.4-1.4L21.2 15H4v-2h17.2l-5.6-5.6L17 6l8 8z"/>
+    </svg>
+  </button>
+
+  <!-- Loading state -->
+  <div class="idp-nav-loading" ng-if="c.loading">
+    <span ng-if="!c.collapsed">Loading navigation...</span>
+  </div>
+
+  <!-- Navigation tree -->
+  <nav aria-label="IDP Navigation" ng-if="!c.loading">
+    <div class="idp-nav-group" ng-repeat="taxonomy in c.navTree track by taxonomy.sys_id">
+      <!-- Taxonomy group header -->
+      <div class="idp-nav-group-header" title="{{taxonomy.name}}">
+        <svg class="idp-nav-group-icon" viewBox="0 0 32 32">
+          <use xlink:href="#{{taxonomy.icon || 'folder'}}"/>
+        </svg>
+        <span class="idp-nav-group-label">{{taxonomy.name}}</span>
+      </div>
+      <!-- Navigation items -->
+      <a class="idp-nav-item"
+         ng-repeat="item in taxonomy.items track by item.sys_id"
+         href="{{item.url}}"
+         ng-class="{active: c.isActive(item.url)}"
+         title="{{item.label}}">
+        <svg class="idp-nav-item-icon" viewBox="0 0 32 32">
+          <use xlink:href="#{{item.icon || 'document'}}"/>
+        </svg>
+        <span class="idp-nav-item-label">{{item.label}}</span>
+      </a>
+    </div>
+
+    <!-- Empty state -->
+    <div class="idp-nav-loading" ng-if="c.navTree.length === 0 && !c.loading">
+      <span ng-if="!c.collapsed">No navigation items available.</span>
+    </div>
+  </nav>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>

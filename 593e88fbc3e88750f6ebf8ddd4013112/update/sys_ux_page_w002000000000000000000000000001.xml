@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <client_script><![CDATA[function($scope, $http, spUtil) {
+    var c = this;
+
+    // Quick action buttons driven by navigation items flagged as quick_link
+    c.quickActions = c.data.quickActions || [];
+    c.personaTiles = c.data.personaTiles || [];
+    c.insights = c.data.insights || {};
+    c.userName = c.data.userName || 'Developer';
+    c.personaLabel = c.data.personaLabel || 'User';
+
+    c.navigate = function(url) {
+        if (url) {
+            window.location.href = url;
+        }
+    };
+
+    c.submitAiQuery = function() {
+        if (!c.aiQuery || c.aiQuery.trim() === '') return;
+        c.aiLoading = true;
+        $http.post('/api/x_146833_idpkiro/ai/ask', { question: c.aiQuery })
+            .then(function(response) {
+                c.aiResponse = response.data.answer || 'AI service is currently unavailable. Please try again later.';
+            })
+            .catch(function() {
+                c.aiResponse = 'AI service is temporarily unavailable.';
+            })
+            .finally(function() {
+                c.aiLoading = false;
+            });
+    };
+}
+]]></client_script>
+        <controller_as>c</controller_as>
+        <css><![CDATA[/* IDP Home Page Widget — Carbon Design System */
+.idp-home { padding: 0; }
+
+/* Hero section */
+.idp-hero {
+  background-color: var(--cds-ui-05, #161616);
+  color: var(--cds-text-04, #ffffff);
+  padding: 2.5rem 2rem;
+  margin-bottom: 2rem;
+}
+.idp-hero h1 {
+  font-size: 2.25rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+.idp-hero p {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0 0 1.5rem 0;
+}
+.idp-hero-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.idp-btn-primary {
+  background-color: var(--cds-interactive-01, #0f62fe);
+  color: #fff;
+  border: none;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  min-height: 3rem;
+  border-radius: 0;
+  transition: background-color 70ms;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.idp-btn-primary:hover { background-color: var(--cds-hover-primary, #0353e9); color: #fff; text-decoration: none; }
+.idp-btn-ghost {
+  background-color: transparent;
+  color: var(--cds-text-04, #fff);
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  min-height: 3rem;
+  border-radius: 0;
+  transition: background-color 70ms;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.idp-btn-ghost:hover { background-color: rgba(255,255,255,0.1); color: #fff; text-decoration: none; }
+
+/* Section layout */
+.idp-section { padding: 0 2rem 2rem 2rem; }
+.idp-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cds-text-01, #161616);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--cds-ui-03, #e0e0e0);
+}
+
+/* Persona tiles */
+.idp-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1px;
+  background-color: var(--cds-ui-03, #e0e0e0);
+  margin-bottom: 2rem;
+}
+.idp-tile {
+  background-color: var(--cds-ui-01, #f4f4f4);
+  padding: 1rem;
+  cursor: pointer;
+  transition: background-color 70ms;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  color: var(--cds-text-01, #161616);
+}
+.idp-tile:hover { background-color: var(--cds-hover-ui, #e5e5e5); text-decoration: none; color: var(--cds-text-01); }
+.idp-tile-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
+.idp-tile-desc { font-size: 0.75rem; color: var(--cds-text-02, #525252); }
+.idp-tile-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+/* Insights panel */
+.idp-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1px;
+  background-color: var(--cds-ui-03, #e0e0e0);
+  margin-bottom: 2rem;
+}
+.idp-insight-card {
+  background-color: var(--cds-ui-02, #ffffff);
+  padding: 1rem;
+  min-height: 80px;
+}
+.idp-insight-label { font-size: 0.75rem; color: var(--cds-text-02, #525252); margin-bottom: 0.25rem; }
+.idp-insight-value { font-size: 2rem; font-weight: 300; color: var(--cds-text-01, #161616); line-height: 1; }
+.idp-insight-value.warning { color: var(--cds-support-01, #da1e28); }
+.idp-insight-value.success { color: var(--cds-support-02, #198038); }
+
+/* AI Assistant */
+.idp-ai-widget {
+  background-color: var(--cds-ui-01, #f4f4f4);
+  border: 1px solid var(--cds-ui-03, #e0e0e0);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.idp-ai-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+.idp-ai-subtitle { font-size: 0.875rem; color: var(--cds-text-02, #525252); margin-bottom: 1rem; }
+.idp-ai-input-row { display: flex; gap: 0; }
+.idp-ai-input {
+  flex: 1;
+  background-color: var(--cds-field-01, #f4f4f4);
+  border: none;
+  border-bottom: 1px solid var(--cds-ui-04, #8d8d8d);
+  padding: 0 1rem;
+  height: 2.5rem;
+  font-size: 0.875rem;
+  outline: none;
+  border-radius: 0;
+}
+.idp-ai-input:focus { outline: 2px solid var(--cds-focus, #0f62fe); outline-offset: -2px; }
+.idp-ai-response {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--cds-ui-02, #fff);
+  border-left: 3px solid var(--cds-interactive-01, #0f62fe);
+  font-size: 0.875rem;
+  color: var(--cds-text-01, #161616);
+}
+
+/* Quick links */
+.idp-quicklinks { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+.idp-quicklink {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--cds-ui-01, #f4f4f4);
+  border: 1px solid var(--cds-ui-03, #e0e0e0);
+  color: var(--cds-link-01, #0f62fe);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: background-color 70ms;
+}
+.idp-quicklink:hover { background-color: var(--cds-hover-ui, #e5e5e5); text-decoration: none; }
+]]></css>
+        <demo_data/>
+        <description>IDP Home Page widget — hero section, persona tiles, insights panel, AI assistant placeholder, and quick links. All data driven from server-side capability resolution.</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>idp_home_page</id>
+        <internal>false</internal>
+        <link/>
+        <name>IDP Home Page</name>
+        <option_schema/>
+        <public>false</public>
+        <roles>x_146833_idpkiro.user</roles>
+        <script><![CDATA[(function() {
+    var userId = gs.getUserID();
+    data.userName = gs.getUserDisplayName();
+
+    // Resolve persona label from highest-privilege IDP role
+    var personaMap = {
+        'x_146833_idpkiro.platform_admin': 'Platform Administrator',
+        'x_146833_idpkiro.security_engineer': 'Security Engineer',
+        'x_146833_idpkiro.sre': 'Site Reliability Engineer',
+        'x_146833_idpkiro.platform_engineer': 'Platform Engineer',
+        'x_146833_idpkiro.product_owner': 'Product Owner',
+        'x_146833_idpkiro.app_developer': 'Application Developer'
+    };
+    var personaOrder = ['x_146833_idpkiro.platform_admin','x_146833_idpkiro.security_engineer','x_146833_idpkiro.sre','x_146833_idpkiro.platform_engineer','x_146833_idpkiro.product_owner','x_146833_idpkiro.app_developer'];
+    data.personaLabel = 'User';
+    for (var pi = 0; pi < personaOrder.length; pi++) {
+        if (gs.hasRole(personaOrder[pi])) {
+            data.personaLabel = personaMap[personaOrder[pi]];
+            break;
+        }
+    }
+
+    // Quick actions — navigation items flagged as quick_link
+    var navEngine = new x_146833_idpkiro.IDPNavigationEngine();
+    var roles = navEngine.getUserRoles(userId);
+    var caps = navEngine.getCapabilities(roles);
+    var navItems = navEngine.getNavigationItems(caps);
+    data.quickActions = [];
+    for (var i = 0; i < navItems.length && data.quickActions.length < 4; i++) {
+        if (navItems[i].quick_link) {
+            data.quickActions.push({ label: navItems[i].label, url: navItems[i].url, icon: navItems[i].icon });
+        }
+    }
+    // Fallback quick actions if none flagged
+    if (data.quickActions.length === 0) {
+        data.quickActions = [
+            { label: 'Request New Service', url: '/idpkiro?id=sc_home', icon: 'add' },
+            { label: 'Deploy Application', url: '/idpkiro?id=idp_catalog&category=cicd', icon: 'deploy' },
+            { label: 'View Pipelines', url: '/idpkiro?id=idp_catalog&category=cicd', icon: 'flow' },
+            { label: 'Check System Health', url: '/idpkiro?id=idp_observability', icon: 'dashboard' }
+        ];
+    }
+
+    // Persona tiles — role-driven visibility
+    var allTiles = [
+        { role: 'x_146833_idpkiro.app_developer', title: 'Developer Workspace', desc: 'APIs, CI/CD pipelines, service catalog', url: '/idpkiro?id=idp_catalog&category=app', icon: '💻' },
+        { role: 'x_146833_idpkiro.platform_engineer', title: 'Platform Engineering Console', desc: 'Infrastructure services, observability', url: '/idpkiro?id=idp_catalog&category=infra', icon: '⚙️' },
+        { role: 'x_146833_idpkiro.sre', title: 'SRE Command Center', desc: 'Incidents, alerts, reliability dashboards', url: '/idpkiro?id=idp_observability', icon: '🔍' },
+        { role: 'x_146833_idpkiro.security_engineer', title: 'Security & Compliance Hub', desc: 'Risk dashboard, compliance services', url: '/idpkiro?id=idp_catalog&category=security', icon: '🔒' },
+        { role: 'x_146833_idpkiro.product_owner', title: 'Product Demand Portal', desc: 'Approvals, demand intake', url: '/idpkiro?id=idp_catalog&category=product', icon: '📋' }
+    ];
+    data.personaTiles = [];
+    for (var t = 0; t < allTiles.length; t++) {
+        if (gs.hasRole(allTiles[t].role) || gs.hasRole('x_146833_idpkiro.platform_admin')) {
+            data.personaTiles.push(allTiles[t]);
+        }
+    }
+
+    // Insights panel — live counts
+    var insights = {};
+
+    // Recent deployments (last 24h) — from change requests tagged as deployment
+    var depGr = new GlideRecord('change_request');
+    depGr.addQuery('type', 'standard');
+    depGr.addQuery('sys_created_on', '>=', gs.daysAgoStart(1));
+    depGr.addQuery('state', 3); // Closed
+    insights.deployments = depGr.getRowCount();
+
+    // Active incidents
+    var incGr = new GlideRecord('incident');
+    incGr.addQuery('active', true);
+    insights.incidents = incGr.getRowCount();
+
+    // Pending approvals for current user
+    var appGr = new GlideRecord('sysapproval_approver');
+    appGr.addQuery('approver', userId);
+    appGr.addQuery('state', 'requested');
+    insights.approvals = appGr.getRowCount();
+
+    // Security findings — open problems tagged security
+    var secGr = new GlideRecord('sn_si_incident');
+    secGr.addQuery('active', true);
+    insights.security_findings = secGr.getRowCount();
+
+    data.insights = insights;
+
+    // Quick links from navigation items
+    data.quickLinks = [];
+    for (var q = 0; q < navItems.length; q++) {
+        data.quickLinks.push({ label: navItems[q].label, url: navItems[q].url });
+        if (data.quickLinks.length >= 8) break;
+    }
+    // Always include these anchors
+    var anchors = [
+        { label: 'Service Catalog', url: '/idpkiro?id=sc_home' },
+        { label: 'API Explorer', url: '/idpkiro?id=idp_api_explorer' },
+        { label: 'Observability', url: '/idpkiro?id=idp_observability' },
+        { label: 'GitLab Pipelines', url: '/idpkiro?id=idp_pipelines' }
+    ];
+    for (var a = 0; a < anchors.length; a++) {
+        var found = false;
+        for (var ql = 0; ql < data.quickLinks.length; ql++) {
+            if (data.quickLinks[ql].url === anchors[a].url) { found = true; break; }
+        }
+        if (!found) data.quickLinks.push(anchors[a]);
+    }
+})();
+]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 04:01:00</sys_created_on>
+        <sys_id>w002000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDP Home Page</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_ux_page_w002000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 04:01:00</sys_updated_on>
+        <template><![CDATA[<div class="idp-home">
+  <!-- Hero Section -->
+  <div class="idp-hero">
+    <h1>Welcome back, {{c.userName}}</h1>
+    <p>{{c.personaLabel}} &mdash; Internal Developer Portal</p>
+    <div class="idp-hero-actions">
+      <a class="idp-btn-primary" ng-repeat="action in c.quickActions" href="{{action.url}}">
+        {{action.label}}
+      </a>
+    </div>
+  </div>
+
+  <!-- Persona Tiles -->
+  <div class="idp-section" ng-if="c.personaTiles.length > 0">
+    <h2 class="idp-section-title">Your Workspaces</h2>
+    <div class="idp-tiles-grid">
+      <a class="idp-tile" ng-repeat="tile in c.personaTiles" href="{{tile.url}}">
+        <div class="idp-tile-icon">{{tile.icon}}</div>
+        <div>
+          <div class="idp-tile-title">{{tile.title}}</div>
+          <div class="idp-tile-desc">{{tile.desc}}</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Insights Panel -->
+  <div class="idp-section">
+    <h2 class="idp-section-title">Platform Insights</h2>
+    <div class="idp-insights-grid">
+      <div class="idp-insight-card">
+        <div class="idp-insight-label">Deployments (24h)</div>
+        <div class="idp-insight-value success">{{c.insights.deployments || 0}}</div>
+      </div>
+      <div class="idp-insight-card">
+        <div class="idp-insight-label">Active Incidents</div>
+        <div class="idp-insight-value" ng-class="{'warning': c.insights.incidents > 0}">{{c.insights.incidents || 0}}</div>
+      </div>
+      <div class="idp-insight-card">
+        <div class="idp-insight-label">Pending Approvals</div>
+        <div class="idp-insight-value" ng-class="{'warning': c.insights.approvals > 0}">{{c.insights.approvals || 0}}</div>
+      </div>
+      <div class="idp-insight-card">
+        <div class="idp-insight-label">Security Findings</div>
+        <div class="idp-insight-value" ng-class="{'warning': c.insights.security_findings > 0}">{{c.insights.security_findings || 0}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Assistant -->
+  <div class="idp-section">
+    <div class="idp-ai-widget">
+      <div class="idp-ai-title">🤖 Ask Platform AI</div>
+      <div class="idp-ai-subtitle">Get instant answers about services, pipelines, and platform capabilities.</div>
+      <div class="idp-ai-input-row">
+        <input class="idp-ai-input" type="text" ng-model="c.aiQuery"
+               placeholder="e.g. How do I create a new microservice pipeline?"
+               ng-keyup="$event.keyCode === 13 && c.submitAiQuery()"
+               aria-label="Ask Platform AI"/>
+        <button class="idp-btn-primary" ng-click="c.submitAiQuery()" ng-disabled="c.aiLoading">
+          <span ng-if="!c.aiLoading">Ask</span>
+          <span ng-if="c.aiLoading">...</span>
+        </button>
+      </div>
+      <div class="idp-ai-response" ng-if="c.aiResponse">{{c.aiResponse}}</div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="idp-section">
+    <h2 class="idp-section-title">Quick Links</h2>
+    <div class="idp-quicklinks">
+      <a class="idp-quicklink" ng-repeat="link in c.data.quickLinks" href="{{link.url}}">
+        {{link.label}}
+      </a>
+    </div>
+  </div>
+</div>
+]]></template>
+    </sp_widget>
+</record_update>
