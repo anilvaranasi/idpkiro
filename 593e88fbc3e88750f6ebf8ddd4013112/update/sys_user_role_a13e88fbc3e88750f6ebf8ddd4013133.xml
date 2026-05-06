@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_user_role">
+    <sys_user_role action="INSERT_OR_UPDATE">
+        <assignable_by/>
+        <can_delegate>true</can_delegate>
+        <description>Default user role</description>
+        <elevated_privilege>false</elevated_privilege>
+        <federated_id>UZSqDOkTvqM8dPZ7v2b5O39LPwKf3KFizjR4StwNFwM=</federated_id>
+        <grantable>true</grantable>
+        <includes_roles/>
+        <name>x_146833_idpkiro.user</name>
+        <scoped_admin>false</scoped_admin>
+        <suffix>user</suffix>
+        <sys_class_name>sys_user_role</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 02:22:59</sys_created_on>
+        <sys_id>a13e88fbc3e88750f6ebf8ddd4013133</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_146833_idpkiro.user</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_user_role_a13e88fbc3e88750f6ebf8ddd4013133</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 02:22:59</sys_updated_on>
+    </sys_user_role>
+</record_update>
