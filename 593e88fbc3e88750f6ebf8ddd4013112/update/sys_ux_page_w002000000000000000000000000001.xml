@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
+        <category/>
         <client_script><![CDATA[function($scope, $http, spUtil) {
     var c = this;
 
@@ -33,7 +34,7 @@
 }
 ]]></client_script>
         <controller_as>c</controller_as>
-        <css><![CDATA[/* IDP Home Page Widget — Carbon Design System */
+        <css>/* IDP Home Page Widget — Carbon Design System */
 .idp-home { padding: 0; }
 
 /* Hero section */
@@ -185,7 +186,8 @@
   transition: background-color 70ms;
 }
 .idp-quicklink:hover { background-color: var(--cds-hover-ui, #e5e5e5); text-decoration: none; }
-]]></css>
+</css>
+        <data_table/>
         <demo_data/>
         <description>IDP Home Page widget — hero section, persona tiles, insights panel, AI assistant placeholder, and quick links. All data driven from server-side capability resolution.</description>
         <docs/>
@@ -243,11 +245,11 @@
 
     // Persona tiles — role-driven visibility
     var allTiles = [
-        { role: 'x_146833_idpkiro.app_developer', title: 'Developer Workspace', desc: 'APIs, CI/CD pipelines, service catalog', url: '/idpkiro?id=idp_catalog&category=app', icon: '💻' },
+        { role: 'x_146833_idpkiro.app_developer', title: 'Developer Workspace', desc: 'APIs, CI/CD pipelines, service catalog', url: '/idpkiro?id=idp_catalog&category=app', icon: ']]>💻<![CDATA[' },
         { role: 'x_146833_idpkiro.platform_engineer', title: 'Platform Engineering Console', desc: 'Infrastructure services, observability', url: '/idpkiro?id=idp_catalog&category=infra', icon: '⚙️' },
-        { role: 'x_146833_idpkiro.sre', title: 'SRE Command Center', desc: 'Incidents, alerts, reliability dashboards', url: '/idpkiro?id=idp_observability', icon: '🔍' },
-        { role: 'x_146833_idpkiro.security_engineer', title: 'Security & Compliance Hub', desc: 'Risk dashboard, compliance services', url: '/idpkiro?id=idp_catalog&category=security', icon: '🔒' },
-        { role: 'x_146833_idpkiro.product_owner', title: 'Product Demand Portal', desc: 'Approvals, demand intake', url: '/idpkiro?id=idp_catalog&category=product', icon: '📋' }
+        { role: 'x_146833_idpkiro.sre', title: 'SRE Command Center', desc: 'Incidents, alerts, reliability dashboards', url: '/idpkiro?id=idp_observability', icon: ']]>🔍<![CDATA[' },
+        { role: 'x_146833_idpkiro.security_engineer', title: 'Security & Compliance Hub', desc: 'Risk dashboard, compliance services', url: '/idpkiro?id=idp_catalog&category=security', icon: ']]>🔒<![CDATA[' },
+        { role: 'x_146833_idpkiro.product_owner', title: 'Product Demand Portal', desc: 'Approvals, demand intake', url: '/idpkiro?id=idp_catalog&category=product', icon: ']]>📋<![CDATA[' }
     ];
     data.personaTiles = [];
     for (var t = 0; t < allTiles.length; t++) {
@@ -371,7 +373,7 @@
   <!-- AI Assistant -->
   <div class="idp-section">
     <div class="idp-ai-widget">
-      <div class="idp-ai-title">🤖 Ask Platform AI</div>
+      <div class="idp-ai-title">]]>🤖<![CDATA[ Ask Platform AI</div>
       <div class="idp-ai-subtitle">Get instant answers about services, pipelines, and platform capabilities.</div>
       <div class="idp-ai-input-row">
         <input class="idp-ai-input" type="text" ng-model="c.aiQuery"

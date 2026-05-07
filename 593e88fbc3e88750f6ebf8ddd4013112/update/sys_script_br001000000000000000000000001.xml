@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script">
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
     <sys_script action="INSERT_OR_UPDATE">
         <abort_action>false</abort_action>
         <access>package_private</access>
@@ -18,13 +18,13 @@
         <filter_condition/>
         <is_rest>false</is_rest>
         <message/>
-        <name>IDP - Invalidate Nav Cache on Role Change</name>
+        <name>IDP - Invalidate Nav Cache on Role Chang</name>
         <order>100</order>
         <priority>100</priority>
         <rest_method/>
-        <rest_method_string/>
+        <rest_method_text/>
         <rest_service/>
-        <rest_service_string/>
+        <rest_service_text/>
         <rest_variables/>
         <role_conditions/>
         <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
@@ -47,9 +47,12 @@
         <sys_class_name>sys_script</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 03:23:00</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
         <sys_id>br001000000000000000000000000001</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_name>IDP - Invalidate Nav Cache on Role Change</sys_name>
+        <sys_overrides/>
         <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
         <sys_policy/>
         <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
@@ -59,4 +62,5 @@
         <template/>
         <when>after</when>
     </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=br001000000000000000000000000001"/>
 </record_update>

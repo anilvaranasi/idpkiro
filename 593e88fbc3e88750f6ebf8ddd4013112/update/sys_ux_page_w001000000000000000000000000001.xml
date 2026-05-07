@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
+        <category/>
         <client_script><![CDATA[function($scope, $http, spUtil) {
     var c = this;
     c.navTree = [];
@@ -45,7 +46,7 @@
 }
 ]]></client_script>
         <controller_as>c</controller_as>
-        <css><![CDATA[.idp-side-nav {
+        <css>.idp-side-nav {
   position: relative;
   height: 100%;
   background-color: var(--cds-ui-01, #f4f4f4);
@@ -131,7 +132,8 @@
   color: var(--cds-text-03, #a8a8a8);
   font-size: 0.875rem;
 }
-]]></css>
+</css>
+        <data_table/>
         <demo_data/>
         <description>IDP Dynamic Navigation — capability-driven left navigation widget. Calls IDPNavigationEngine via GlideAjax and renders taxonomy-grouped menu items. No hardcoded items.</description>
         <docs/>

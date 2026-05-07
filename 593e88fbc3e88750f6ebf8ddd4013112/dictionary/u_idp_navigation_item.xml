@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="enforce_dot_walk_cross_scope_access=true" db_object_id="7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f" label="IDP Navigation Item" max_length="0" name="u_idp_navigation_item" type="collection">
+        <element label="URL" max_length="500" name="url" type="string"/>
+        <element label="Icon" max_length="100" name="icon" type="string"/>
+        <element label="Taxonomy" max_length="32" name="taxonomy" reference="u_idp_taxonomy" type="reference"/>
+        <element label="Required Capabilities" max_length="1024" name="required_capabilities" reference="u_idp_capability" type="glide_list"/>
+        <element label="Order" max_length="40" name="order" type="integer"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element display="true" label="Name" max_length="255" name="name" type="string"/>
+        <element label="Label" max_length="255" name="label" type="string"/>
+        <element label="Quick link" max_length="40" name="quick_link" type="boolean"/>
+        <index name="index">
+            <element name="taxonomy"/>
+        </index>
+    </element>
+</database>

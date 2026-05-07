@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties">
     <sys_properties action="INSERT_OR_UPDATE">
+        <choices/>
         <description>Base URL of the AI provider endpoint for the IDP AI Orchestration Layer. Example: https://your-ai-provider.example.com/v1</description>
+        <ignore_cache>false</ignore_cache>
+        <is_private>false</is_private>
         <name>x_146833_idpkiro.ai.endpoint</name>
         <read_roles>x_146833_idpkiro.platform_admin</read_roles>
         <suffix>string</suffix>
@@ -17,7 +20,8 @@
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 04:55:00</sys_updated_on>
         <type>string</type>
-        <value></value>
+        <value/>
         <write_roles>x_146833_idpkiro.platform_admin</write_roles>
     </sys_properties>
+    <sys_translated_text action="delete_multiple" query="documentkey=prop002000000000000000000000001"/>
 </record_update>

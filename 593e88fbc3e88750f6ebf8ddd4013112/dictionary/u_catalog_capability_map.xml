@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="enforce_dot_walk_cross_scope_access=true" db_object_id="d0060000000000000000000000000001" label="Catalog Capability Map" max_length="0" name="u_catalog_capability_map" type="collection">
+        <element label="Catalog item" max_length="32" name="catalog_item" reference="sc_cat_item" type="reference"/>
+        <element label="Capability" max_length="32" name="capability" reference="u_idp_capability" type="reference"/>
+        <index name="index">
+            <element name="capability"/>
+        </index>
+        <index name="index2">
+            <element name="catalog_item"/>
+        </index>
+    </element>
+</database>

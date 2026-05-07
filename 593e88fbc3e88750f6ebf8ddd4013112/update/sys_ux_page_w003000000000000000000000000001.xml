@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
+        <category/>
         <client_script><![CDATA[function($scope, $http, $interval) {
     var c = this;
     c.metrics = c.data.metrics || {};
@@ -48,7 +49,7 @@
 }
 ]]></client_script>
         <controller_as>c</controller_as>
-        <css><![CDATA[/* IDP Observability Dashboard Widget */
+        <css>/* IDP Observability Dashboard Widget */
 .idp-obs { padding: 2rem; }
 .idp-obs-title { font-size: 1.75rem; font-weight: 300; margin-bottom: 0.25rem; color: var(--cds-text-01, #161616); }
 .idp-obs-subtitle { font-size: 0.875rem; color: var(--cds-text-02, #525252); margin-bottom: 2rem; }
@@ -131,7 +132,8 @@
 .idp-badge-high { background-color: #ffd7d9; color: #750e13; }
 .idp-badge-medium { background-color: #fdd13a; color: #3e2400; }
 .idp-badge-low { background-color: #d0e2ff; color: #0043ce; }
-]]></css>
+</css>
+        <data_table/>
         <demo_data/>
         <description>IDP Observability Dashboard — real-time platform health tiles, trend graphs, and service dependency map placeholder. Role-filtered views: SRE full, Developer limited, Product Owner summary.</description>
         <docs/>
@@ -329,7 +331,7 @@
   <div ng-if="c.viewLevel === 'full'">
     <h2 class="idp-obs-section-title">Service Dependency Map</h2>
     <div class="idp-dep-map">
-      <div class="idp-dep-map-title">🗺 Service Topology</div>
+      <div class="idp-dep-map-title">]]>🗺<![CDATA[ Service Topology</div>
       <div class="idp-dep-map-sub">
         Dynamic service dependency visualization will be rendered here once the monitoring integration is connected.<br/>
         <em>Placeholder — future integration with ServiceNow Discovery / external APM.</em>

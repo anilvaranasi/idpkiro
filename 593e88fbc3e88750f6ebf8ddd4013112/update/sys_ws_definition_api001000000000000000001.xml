@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_definition">
     <sys_ws_definition action="INSERT_OR_UPDATE">
         <active>true</active>
-        <base_uri>/api/x_146833_idpkiro</base_uri>
+        <base_uri/>
         <consumes>application/json</consumes>
         <consumes_customized>false</consumes_customized>
-        <description>IDP Kiro REST API — provides AI orchestration, observability metrics, and navigation endpoints for the Internal Developer Portal.</description>
-        <enforces_acl>true</enforces_acl>
+        <default_version>No active default version</default_version>
+        <doc_link/>
+        <enforce_acl/>
+        <is_versioned>false</is_versioned>
         <name>IDP Kiro API</name>
+        <namespace/>
         <produces>application/json</produces>
         <produces_customized>false</produces_customized>
-        <requires_acl_authorization>true</requires_acl_authorization>
-        <requires_authentication>true</requires_authentication>
-        <requires_snc_internal_role>false</requires_snc_internal_role>
+        <service_id/>
         <short_description>IDP Kiro REST API</short_description>
         <sys_class_name>sys_ws_definition</sys_class_name>
         <sys_created_by>admin</sys_created_by>

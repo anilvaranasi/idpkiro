@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="enforce_dot_walk_cross_scope_access=true" db_object_id="d0030000000000000000000000000001" label="IDP Taxonomy" max_length="0" name="u_idp_taxonomy" type="collection">
+        <element label="Icon" max_length="100" name="icon" type="string"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <element label="Name" max_length="255" name="name" type="string"/>
+        <element label="Order" max_length="40" name="order" type="integer"/>
+    </element>
+</database>

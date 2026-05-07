@@ -6,7 +6,9 @@
         <caller_access/>
         <client_callable>true</client_callable>
         <description>IDP Navigation Engine — builds dynamic navigation trees from database metadata. Implements the Role → Capability → Taxonomy → Navigation 4-layer model. No hardcoded menus. Supports GlideCache with 5-minute TTL and persona override.</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPNavigationEngine</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var IDPNavigationEngine = Class.create();
 IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 

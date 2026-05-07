@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_user_role">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_user_role">
     <sys_user_role action="INSERT_OR_UPDATE">
-        <assignable_by display_value=""/>
+        <assignable_by/>
         <can_delegate>true</can_delegate>
         <description>DevSecOps Engineer role with AWS platform security and infrastructure capabilities.</description>
         <elevated_privilege>false</elevated_privilege>
+        <federated_id/>
         <grantable>true</grantable>
-        <includes_roles display_value=""/>
+        <includes_roles/>
         <name>x_146833_idpkiro.devsecops_engineer</name>
-        <requires_subscription>-1</requires_subscription>
         <scoped_admin>false</scoped_admin>
         <suffix>devsecops_engineer</suffix>
         <sys_class_name>sys_user_role</sys_class_name>

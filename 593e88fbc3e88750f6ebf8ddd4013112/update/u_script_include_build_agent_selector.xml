@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script_include">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
         <active>true</active>
         <api_name>x_146833_idpkiro.BuildAgentSelector</api_name>
+        <caller_access/>
         <client_callable>true</client_callable>
         <description>Intelligent Build Agent Selection Engine
 
@@ -24,7 +24,9 @@ Selection Algorithm:
    - speed_weight * speed_score
    - specialization_bonus if task matches
 5. Return highest scoring agent with reasoning</description>
+        <mobile_callable>false</mobile_callable>
         <name>BuildAgentSelector</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var BuildAgentSelector = Class.create();
 BuildAgentSelector.prototype = {
     initialize: function() {
