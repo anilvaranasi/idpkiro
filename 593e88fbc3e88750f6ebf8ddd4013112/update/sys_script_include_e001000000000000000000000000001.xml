@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPSecurity</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>IDP Security enforcement Script Include. Provides server-side capability checks used in ACLs, Business Rules, and Script Includes. UI filtering is NOT security — always use this class for access enforcement.</description>
+        <name>IDPSecurity</name>
+        <script><![CDATA[var IDPSecurity = Class.create();
+IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+
+    /**
+     * Check whether the currently authenticated user has the specified capability.
+     * This is the sole server-side capability enforcement point for the IDP.
+     *
+     * @param {string} capabilityId - The machine-readable capability_id value (e.g. 'cap_sre')
+     * @returns {boolean} true if the user has the capability, false otherwise
+     */
+    hasCapability: function(capabilityId) {
+        try {
+            if (!capabilityId) {
+                return false;
+            }
+
+            var userId = gs.getUserID();
+            if (!userId) {
+                return false;
+            }
+
+            // Check persona override first
+            var overrideRoles = this._getPersonaOverrideRoles(userId);
+            var roles;
+            if (overrideRoles !== null) {
+                roles = overrideRoles;
+            } else {
+                roles = this._getUserRoleSysIds(userId);
+            }
+
+            if (!roles || roles.length === 0) {
+                return false;
+            }
+
+            // Resolve capability sys_id from capability_id string
+            var capSysId = this._getCapabilitySysId(capabilityId);
+            if (!capSysId) {
+                return false;
+            }
+
+            // Check if any of the user's roles map to this capability
+            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            rcm.addQuery('capability', capSysId);
+            rcm.addQuery('role', 'IN', roles.join(','));
+            rcm.setLimit(1);
+            rcm.query();
+            return rcm.next();
+
+        } catch (e) {
+            gs.logError('IDPSecurity.hasCapability error: ' + e.message, 'IDPSecurity');
+            return false;
+        }
+    },
+
+    /**
+     * AJAX-callable version of hasCapability for use in client scripts.
+     * Call via GlideAjax with sysparm_name='ajaxHasCapability' and sysparm_capability_id=<id>
+     */
+    ajaxHasCapability: function() {
+        var capabilityId = this.getParameter('sysparm_capability_id');
+        var result = this.hasCapability(capabilityId);
+        return result ? 'true' : 'false';
+    },
+
+    /**
+     * Check capability for a specific user (admin/platform_admin use only).
+     * @param {string} capabilityId
+     * @param {string} userId - sys_id of the user to check
+     * @returns {boolean}
+     */
+    hasCapabilityForUser: function(capabilityId, userId) {
+        try {
+            if (!capabilityId || !userId) {
+                return false;
+            }
+
+            var overrideRoles = this._getPersonaOverrideRoles(userId);
+            var roles;
+            if (overrideRoles !== null) {
+                roles = overrideRoles;
+            } else {
+                roles = this._getUserRoleSysIds(userId);
+            }
+
+            if (!roles || roles.length === 0) {
+                return false;
+            }
+
+            var capSysId = this._getCapabilitySysId(capabilityId);
+            if (!capSysId) {
+                return false;
+            }
+
+            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            rcm.addQuery('capability', capSysId);
+            rcm.addQuery('role', 'IN', roles.join(','));
+            rcm.setLimit(1);
+            rcm.query();
+            return rcm.next();
+
+        } catch (e) {
+            gs.logError('IDPSecurity.hasCapabilityForUser error: ' + e.message, 'IDPSecurity');
+            return false;
+        }
+    },
+
+    /**
+     * Return all capability_ids the current user has.
+     * @returns {Array<string>} array of capability_id strings
+     */
+    getUserCapabilityIds: function() {
+        try {
+            var userId = gs.getUserID();
+            var overrideRoles = this._getPersonaOverrideRoles(userId);
+            var roles = (overrideRoles !== null) ? overrideRoles : this._getUserRoleSysIds(userId);
+
+            if (!roles || roles.length === 0) {
+                return [];
+            }
+
+            var capSysIds = [];
+            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            rcm.addQuery('role', 'IN', roles.join(','));
+            rcm.query();
+            while (rcm.next()) {
+                capSysIds.push(rcm.getValue('capability'));
+            }
+
+            if (capSysIds.length === 0) {
+                return [];
+            }
+
+            var capIds = [];
+            var cap = new GlideRecord('x_146833_idpkiro_u_idp_capability');
+            cap.addQuery('sys_id', 'IN', capSysIds.join(','));
+            cap.addQuery('active', true);
+            cap.query();
+            while (cap.next()) {
+                capIds.push(cap.getValue('capability_id'));
+            }
+            return capIds;
+
+        } catch (e) {
+            gs.logError('IDPSecurity.getUserCapabilityIds error: ' + e.message, 'IDPSecurity');
+            return [];
+        }
+    },
+
+    // ---- Private helpers ----
+
+    _getCapabilitySysId: function(capabilityId) {
+        var cap = new GlideRecord('x_146833_idpkiro_u_idp_capability');
+        cap.addQuery('capability_id', capabilityId);
+        cap.addQuery('active', true);
+        cap.setLimit(1);
+        cap.query();
+        if (cap.next()) {
+            return cap.getUniqueValue();
+        }
+        return null;
+    },
+
+    _getUserRoleSysIds: function(userId) {
+        var roles = [];
+        var uhr = new GlideRecord('sys_user_has_role');
+        uhr.addQuery('user', userId);
+        uhr.addQuery('state', 'active');
+        uhr.query();
+        while (uhr.next()) {
+            roles.push(uhr.getValue('role'));
+        }
+        return roles;
+    },
+
+    _getPersonaOverrideRoles: function(userId) {
+        var override = new GlideRecord('x_146833_idpkiro_u_user_persona_override');
+        override.addQuery('user', userId);
+        override.setLimit(1);
+        override.query();
+        if (override.next()) {
+            var rolesRaw = override.getValue('active_roles');
+            if (rolesRaw) {
+                return rolesRaw.split(',').map(function(r) { return r.trim(); }).filter(function(r) { return r.length > 0; });
+            }
+        }
+        return null;
+    },
+
+    type: 'IDPSecurity'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 03:20:00</sys_created_on>
+        <sys_id>e001000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPSecurity</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_script_include_e001000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 03:20:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

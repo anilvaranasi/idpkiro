@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_build_agent">
+    <x_146833_idpkiro_u_idp_build_agent action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <agent_id>agent_mistral_large</agent_id>
+        <context_window>32768</context_window>
+        <input_cost_per_1k>0.004</input_cost_per_1k>
+        <model>mistral-large-latest</model>
+        <name>Mistral Large</name>
+        <output_cost_per_1k>0.012</output_cost_per_1k>
+        <provider>Mistral AI</provider>
+        <quality_score>82</quality_score>
+        <speed_score>80</speed_score>
+        <specializations>code_generation, optimization, infrastructure</specializations>
+        <sys_class_name>x_146833_idpkiro_u_idp_build_agent</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 07:00:00</sys_created_on>
+        <sys_id>ba_mistral_large</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Mistral Large</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_idp_build_agent_mistral_large</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 07:00:00</sys_updated_on>
+    </x_146833_idpkiro_u_idp_build_agent>
+</record_update>

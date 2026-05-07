@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPNavigationEngine</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>IDP Navigation Engine — builds dynamic navigation trees from database metadata. Implements the Role → Capability → Taxonomy → Navigation 4-layer model. No hardcoded menus. Supports GlideCache with 5-minute TTL and persona override.</description>
+        <name>IDPNavigationEngine</name>
+        <script><![CDATA[var IDPNavigationEngine = Class.create();
+IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+
+    CACHE_TTL_SECONDS: 300,
+
+    /**
+     * Main orchestration method. Returns the full navigation tree for a user.
+     * Checks GlideCache first; builds from DB on miss.
+     *
+     * @param {string} userId - sys_id of the user (defaults to current user if omitted)
+     * @returns {Object} Navigation tree: { taxonomies: [{ sys_id, name, icon, order, items: [...] }] }
+     */
+    getNavigation: function(userId) {
+        try {
+            userId = userId || gs.getUserID();
+            var cacheKey = 'idp_nav_' + userId;
+
+            // Check cache
+            var cached = this._cacheGet(cacheKey);
+            if (cached) {
+                return cached;
+            }
+
+            // Build from DB
+            var roles = this.getUserRoles(userId);
+            var capabilities = this.getCapabilities(roles);
+            var taxonomies = this.getTaxonomy(capabilities);
+            var items = this.getNavigationItems(capabilities);
+            var tree = this.buildNavigationTree(items, taxonomies);
+
+            // Store in cache
+            this._cacheSet(cacheKey, tree);
+
+            return tree;
+
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.getNavigation error: ' + e.message, 'IDPNavigationEngine');
+            return { taxonomies: [] };
+        }
+    },
+
+    /**
+     * AJAX entry point — called by idp_dynamic_navigation widget via GlideAjax.
+     * Returns JSON string of the navigation tree.
+     */
+    ajaxGetNavigation: function() {
+        var userId = gs.getUserID();
+        var tree = this.getNavigation(userId);
+        return JSON.stringify(tree);
+    },
+
+    /**
+     * Get the role sys_ids for a user. Respects persona override.
+     *
+     * @param {string} userId
+     * @returns {Array<string>} array of role sys_ids
+     */
+    getUserRoles: function(userId) {
+        try {
+            // Check persona override
+            var override = new GlideRecord('x_146833_idpkiro_u_user_persona_override');
+            override.addQuery('user', userId);
+            override.setLimit(1);
+            override.query();
+            if (override.next()) {
+                var rolesRaw = override.getValue('active_roles');
+                if (rolesRaw) {
+                    return rolesRaw.split(',').map(function(r) { return r.trim(); }).filter(function(r) { return r.length > 0; });
+                }
+            }
+
+            // Use actual system roles
+            var roles = [];
+            var uhr = new GlideRecord('sys_user_has_role');
+            uhr.addQuery('user', userId);
+            uhr.addQuery('state', 'active');
+            uhr.query();
+            while (uhr.next()) {
+                roles.push(uhr.getValue('role'));
+            }
+            return roles;
+
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.getUserRoles error: ' + e.message, 'IDPNavigationEngine');
+            return [];
+        }
+    },
+
+    /**
+     * Resolve capability sys_ids from an array of role sys_ids.
+     *
+     * @param {Array<string>} roles - array of role sys_ids
+     * @returns {Array<string>} array of capability sys_ids (deduplicated)
+     */
+    getCapabilities: function(roles) {
+        try {
+            if (!roles || roles.length === 0) {
+                return [];
+            }
+
+            var capSysIds = [];
+            var seen = {};
+
+            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            rcm.addQuery('role', 'IN', roles.join(','));
+            rcm.query();
+            while (rcm.next()) {
+                var capId = rcm.getValue('capability');
+                if (!seen[capId]) {
+                    seen[capId] = true;
+                    capSysIds.push(capId);
+                }
+            }
+
+            // Filter to active capabilities only
+            if (capSysIds.length === 0) {
+                return [];
+            }
+
+            var activeCaps = [];
+            var cap = new GlideRecord('x_146833_idpkiro_u_idp_capability');
+            cap.addQuery('sys_id', 'IN', capSysIds.join(','));
+            cap.addQuery('active', true);
+            cap.query();
+            while (cap.next()) {
+                activeCaps.push(cap.getUniqueValue());
+            }
+            return activeCaps;
+
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.getCapabilities error: ' + e.message, 'IDPNavigationEngine');
+            return [];
+        }
+    },
+
+    /**
+     * Resolve distinct active taxonomy records from an array of capability sys_ids.
+     *
+     * @param {Array<string>} capabilities - array of capability sys_ids
+     * @returns {Array<Object>} array of { sys_id, name, icon, order }
+     */
+    getTaxonomy: function(capabilities) {
+        try {
+            if (!capabilities || capabilities.length === 0) {
+                return [];
+            }
+
+            var taxSysIds = [];
+            var seen = {};
+
+            var ctm = new GlideRecord('x_146833_idpkiro_u_capability_taxonomy_map');
+            ctm.addQuery('capability', 'IN', capabilities.join(','));
+            ctm.query();
+            while (ctm.next()) {
+                var taxId = ctm.getValue('taxonomy');
+                if (!seen[taxId]) {
+                    seen[taxId] = true;
+                    taxSysIds.push(taxId);
+                }
+            }
+
+            if (taxSysIds.length === 0) {
+                return [];
+            }
+
+            var taxonomies = [];
+            var tax = new GlideRecord('x_146833_idpkiro_u_idp_taxonomy');
+            tax.addQuery('sys_id', 'IN', taxSysIds.join(','));
+            tax.addQuery('active', true);
+            tax.orderBy('order');
+            tax.query();
+            while (tax.next()) {
+                taxonomies.push({
+                    sys_id: tax.getUniqueValue(),
+                    name: tax.getValue('name'),
+                    icon: tax.getValue('icon'),
+                    order: parseInt(tax.getValue('order'), 10) || 0
+                });
+            }
+            return taxonomies;
+
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.getTaxonomy error: ' + e.message, 'IDPNavigationEngine');
+            return [];
+        }
+    },
+
+    /**
+     * Get navigation items accessible to the user based on their capabilities.
+     * An item is accessible if the user has ALL required capabilities (subset check).
+     *
+     * @param {Array<string>} capabilities - array of capability sys_ids the user has
+     * @returns {Array<Object>} array of navigation item objects
+     */
+    getNavigationItems: function(capabilities) {
+        try {
+            var capSet = {};
+            for (var i = 0; i < capabilities.length; i++) {
+                capSet[capabilities[i]] = true;
+            }
+
+            var items = [];
+            var nav = new GlideRecord('x_146833_idpkiro_u_idp_navigation_item');
+            nav.addQuery('active', true);
+            nav.orderBy('order');
+            nav.query();
+
+            while (nav.next()) {
+                var requiredRaw = nav.getValue('required_capabilities');
+                var accessible = true;
+
+                if (requiredRaw) {
+                    var required = requiredRaw.split(',').map(function(r) { return r.trim(); }).filter(function(r) { return r.length > 0; });
+                    for (var j = 0; j < required.length; j++) {
+                        if (!capSet[required[j]]) {
+                            accessible = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (accessible) {
+                    items.push({
+                        sys_id: nav.getUniqueValue(),
+                        name: nav.getValue('name'),
+                        label: nav.getValue('label'),
+                        url: nav.getValue('url'),
+                        icon: nav.getValue('icon'),
+                        taxonomy_sys_id: nav.getValue('taxonomy'),
+                        order: parseInt(nav.getValue('order'), 10) || 0,
+                        quick_link: nav.getValue('quick_link') === '1'
+                    });
+                }
+            }
+            return items;
+
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.getNavigationItems error: ' + e.message, 'IDPNavigationEngine');
+            return [];
+        }
+    },
+
+    /**
+     * Group navigation items by taxonomy and return the final tree structure.
+     *
+     * @param {Array<Object>} items - navigation items from getNavigationItems
+     * @param {Array<Object>} taxonomies - taxonomy objects from getTaxonomy
+     * @returns {Object} { taxonomies: [{ sys_id, name, icon, order, items: [...] }] }
+     */
+    buildNavigationTree: function(items, taxonomies) {
+        try {
+            var taxMap = {};
+            for (var i = 0; i < taxonomies.length; i++) {
+                taxMap[taxonomies[i].sys_id] = {
+                    sys_id: taxonomies[i].sys_id,
+                    name: taxonomies[i].name,
+                    icon: taxonomies[i].icon,
+                    order: taxonomies[i].order,
+                    items: []
+                };
+            }
+
+            for (var j = 0; j < items.length; j++) {
+                var item = items[j];
+                if (taxMap[item.taxonomy_sys_id]) {
+                    taxMap[item.taxonomy_sys_id].items.push({
+                        sys_id: item.sys_id,
+                        label: item.label,
+                        url: item.url,
+                        icon: item.icon,
+                        order: item.order,
+                        quick_link: item.quick_link
+                    });
+                }
+            }
+
+            // Build ordered array, exclude empty taxonomy groups
+            var result = [];
+            var taxIds = Object.keys(taxMap);
+            taxIds.sort(function(a, b) { return taxMap[a].order - taxMap[b].order; });
+
+            for (var k = 0; k < taxIds.length; k++) {
+                var taxNode = taxMap[taxIds[k]];
+                if (taxNode.items.length > 0) {
+                    // Sort items within taxonomy by order
+                    taxNode.items.sort(function(a, b) { return a.order - b.order; });
+                    result.push(taxNode);
+                }
+            }
+
+            return { taxonomies: result };
+
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.buildNavigationTree error: ' + e.message, 'IDPNavigationEngine');
+            return { taxonomies: [] };
+        }
+    },
+
+    /**
+     * Invalidate the navigation cache for a specific user.
+     * Called by Business Rule when role assignments change.
+     *
+     * @param {string} userId
+     */
+    invalidateCache: function(userId) {
+        try {
+            var cacheKey = 'idp_nav_' + userId;
+            this._cacheClear(cacheKey);
+        } catch (e) {
+            gs.logError('IDPNavigationEngine.invalidateCache error: ' + e.message, 'IDPNavigationEngine');
+        }
+    },
+
+    // ---- Cache helpers (GlideCache wrapper) ----
+
+    _cacheGet: function(key) {
+        try {
+            var cache = new GlideCache('idp_nav_cache', this.CACHE_TTL_SECONDS);
+            var val = cache.get(key);
+            if (val) {
+                return JSON.parse(val);
+            }
+        } catch (e) {
+            // Cache miss or parse error — treat as miss
+        }
+        return null;
+    },
+
+    _cacheSet: function(key, value) {
+        try {
+            var cache = new GlideCache('idp_nav_cache', this.CACHE_TTL_SECONDS);
+            cache.put(key, JSON.stringify(value));
+        } catch (e) {
+            gs.logWarning('IDPNavigationEngine._cacheSet failed: ' + e.message, 'IDPNavigationEngine');
+        }
+    },
+
+    _cacheClear: function(key) {
+        try {
+            var cache = new GlideCache('idp_nav_cache', this.CACHE_TTL_SECONDS);
+            cache.remove(key);
+        } catch (e) {
+            gs.logWarning('IDPNavigationEngine._cacheClear failed: ' + e.message, 'IDPNavigationEngine');
+        }
+    },
+
+    type: 'IDPNavigationEngine'
+});
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 03:21:00</sys_created_on>
+        <sys_id>e002000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPNavigationEngine</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_script_include_e002000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 03:21:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

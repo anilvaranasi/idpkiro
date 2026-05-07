@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <acss/>
+        <category>general</category>
+        <css/>
+        <description>IDP CI/CD Pipelines — pipeline management page for users with cap_create_pipeline or cap_deploy_service capabilities. Future GitLab integration entry point.</description>
+        <draft>false</draft>
+        <id>idp_pipelines</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles>x_146833_idpkiro.user</roles>
+        <short_description>CI/CD Pipelines</short_description>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 05:00:00</sys_created_on>
+        <sys_id>pg004000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>idp_pipelines</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sp_page_pg004000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 05:00:00</sys_updated_on>
+        <title>CI/CD Pipelines</title>
+    </sp_page>
+</record_update>

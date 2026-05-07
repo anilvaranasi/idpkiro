@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPCatalogEngine</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>IDP Catalog Engine — filters and groups Service Catalog items based on user capabilities. Implements capability-driven catalog visibility with caching. No hardcoded catalog rules.</description>
+        <name>IDPCatalogEngine</name>
+        <script><![CDATA[var IDPCatalogEngine = Class.create();
+IDPCatalogEngine.prototype = {
+
+    CACHE_TTL_SECONDS: 300,
+
+    initialize: function() {},
+
+    /**
+     * Get all capability sys_ids for a user.
+     * Reuses IDPNavigationEngine logic for consistency.
+     *
+     * @param {string} userId
+     * @returns {Array<string>} capability sys_ids
+     */
+    getUserCapabilities: function(userId) {
+        try {
+            userId = userId || gs.getUserID();
+            var cacheKey = 'idp_catalog_' + userId;
+
+            var cached = this._cacheGet(cacheKey);
+            if (cached) {
+                return cached;
+            }
+
+            var navEngine = new x_146833_idpkiro.IDPNavigationEngine();
+            var roles = navEngine.getUserRoles(userId);
+            var capabilities = navEngine.getCapabilities(roles);
+
+            this._cacheSet(cacheKey, capabilities);
+            return capabilities;
+
+        } catch (e) {
+            gs.logError('IDPCatalogEngine.getUserCapabilities error: ' + e.message, 'IDPCatalogEngine');
+            return [];
+        }
+    },
+
+    /**
+     * Get all catalog items accessible to the user based on their capabilities.
+     * Items with no capability mapping are visible to all authenticated IDP users.
+     *
+     * @param {string} userId
+     * @returns {Array<Object>} accessible catalog item objects
+     */
+    getAvailableCatalogItems: function(userId) {
+        try {
+            userId = userId || gs.getUserID();
+            var capabilities = this.getUserCapabilities(userId);
+            var capSet = {};
+            for (var i = 0; i < capabilities.length; i++) {
+                capSet[capabilities[i]] = true;
+            }
+
+            // Get all catalog items that have IDP capability mappings
+            var mappedItemIds = {};
+            var ccm = new GlideRecord('x_146833_idpkiro_u_catalog_capability_map');
+            ccm.query();
+            while (ccm.next()) {
+                var itemId = ccm.getValue('catalog_item');
+                var capId = ccm.getValue('capability');
+                if (!mappedItemIds[itemId]) {
+                    mappedItemIds[itemId] = [];
+                }
+                mappedItemIds[itemId].push(capId);
+            }
+
+            var accessibleItems = [];
+
+            // Query active catalog items
+            var cat = new GlideRecord('sc_cat_item');
+            cat.addQuery('active', true);
+            cat.query();
+
+            while (cat.next()) {
+                var catSysId = cat.getUniqueValue();
+                var requiredCaps = mappedItemIds[catSysId];
+
+                var accessible = false;
+                if (!requiredCaps || requiredCaps.length === 0) {
+                    // No capability mapping — visible to all IDP users
+                    accessible = true;
+                } else {
+                    // User must have at least one of the required capabilities
+                    for (var j = 0; j < requiredCaps.length; j++) {
+                        if (capSet[requiredCaps[j]]) {
+                            accessible = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (accessible) {
+                    accessibleItems.push({
+                        sys_id: catSysId,
+                        name: cat.getValue('name'),
+                        short_description: cat.getValue('short_description'),
+                        category: cat.getValue('category'),
+                        taxonomy: cat.getValue('u_taxonomy'),
+                        lifecycle_stage: '',
+                        owning_team: cat.getValue('u_owner_group'),
+                        tags: ''
+                    });
+                }
+            }
+
+            // Enrich with metadata from u_idp_service_catalog_meta
+            this._enrichWithMetadata(accessibleItems);
+
+            return accessibleItems;
+
+        } catch (e) {
+            gs.logError('IDPCatalogEngine.getAvailableCatalogItems error: ' + e.message, 'IDPCatalogEngine');
+            return [];
+        }
+    },
+
+    /**
+     * Return catalog items grouped by taxonomy for portal rendering.
+     *
+     * @param {string} userId
+     * @returns {Object} { "Application Services": [...], "CI/CD Services": [...], ... }
+     */
+    filterCatalogForPortal: function(userId) {
+        try {
+            userId = userId || gs.getUserID();
+            var items = this.getAvailableCatalogItems(userId);
+
+            // Build taxonomy name lookup
+            var taxNames = {};
+            var tax = new GlideRecord('x_146833_idpkiro_u_idp_taxonomy');
+            tax.addQuery('active', true);
+            tax.query();
+            while (tax.next()) {
+                taxNames[tax.getUniqueValue()] = tax.getValue('name');
+            }
+
+            var grouped = {};
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var groupKey = taxNames[item.taxonomy] || item.category || 'Other';
+                if (!grouped[groupKey]) {
+                    grouped[groupKey] = [];
+                }
+                grouped[groupKey].push({
+                    sys_id: item.sys_id,
+                    name: item.name,
+                    short_description: item.short_description,
+                    lifecycle_stage: item.lifecycle_stage,
+                    owning_team: item.owning_team,
+                    tags: item.tags
+                });
+            }
+            return grouped;
+
+        } catch (e) {
+            gs.logError('IDPCatalogEngine.filterCatalogForPortal error: ' + e.message, 'IDPCatalogEngine');
+            return {};
+        }
+    },
+
+    /**
+     * Check whether a user can execute a specific catalog item.
+     * The user must have at least one capability mapped to the item.
+     * Items with no mapping are executable by all IDP users.
+     *
+     * @param {string} catalogItemSysId
+     * @param {string} userId
+     * @returns {boolean}
+     */
+    canUserExecute: function(catalogItemSysId, userId) {
+        try {
+            userId = userId || gs.getUserID();
+
+            if (!catalogItemSysId) {
+                return false;
+            }
+
+            // Check if item has any capability mappings
+            var ccm = new GlideRecord('x_146833_idpkiro_u_catalog_capability_map');
+            ccm.addQuery('catalog_item', catalogItemSysId);
+            ccm.query();
+
+            var requiredCaps = [];
+            while (ccm.next()) {
+                requiredCaps.push(ccm.getValue('capability'));
+            }
+
+            // No mappings — all IDP users can execute
+            if (requiredCaps.length === 0) {
+                return true;
+            }
+
+            var userCaps = this.getUserCapabilities(userId);
+            var capSet = {};
+            for (var i = 0; i < userCaps.length; i++) {
+                capSet[userCaps[i]] = true;
+            }
+
+            for (var j = 0; j < requiredCaps.length; j++) {
+                if (capSet[requiredCaps[j]]) {
+                    return true;
+                }
+            }
+            return false;
+
+        } catch (e) {
+            gs.logError('IDPCatalogEngine.canUserExecute error: ' + e.message, 'IDPCatalogEngine');
+            return false;
+        }
+    },
+
+    /**
+     * Invalidate catalog cache for a user.
+     * @param {string} userId
+     */
+    invalidateCache: function(userId) {
+        try {
+            this._cacheClear('idp_catalog_' + userId);
+        } catch (e) {
+            gs.logError('IDPCatalogEngine.invalidateCache error: ' + e.message, 'IDPCatalogEngine');
+        }
+    },
+
+    // ---- Private helpers ----
+
+    _enrichWithMetadata: function(items) {
+        if (!items || items.length === 0) {
+            return;
+        }
+        var itemIds = items.map(function(i) { return i.sys_id; });
+        var metaMap = {};
+
+        var meta = new GlideRecord('x_146833_idpkiro_u_idp_service_catalog_meta');
+        meta.addQuery('catalog_item', 'IN', itemIds.join(','));
+        meta.addQuery('active', true);
+        meta.query();
+        while (meta.next()) {
+            metaMap[meta.getValue('catalog_item')] = {
+                lifecycle_stage: meta.getValue('lifecycle_stage'),
+                tags: meta.getValue('tags'),
+                owning_team: meta.getValue('owning_team')
+            };
+        }
+
+        for (var i = 0; i < items.length; i++) {
+            var m = metaMap[items[i].sys_id];
+            if (m) {
+                items[i].lifecycle_stage = m.lifecycle_stage || '';
+                items[i].tags = m.tags || '';
+                if (m.owning_team) {
+                    items[i].owning_team = m.owning_team;
+                }
+            }
+        }
+    },
+
+    _cacheGet: function(key) {
+        try {
+            var cache = new GlideCache('idp_catalog_cache', this.CACHE_TTL_SECONDS);
+            var val = cache.get(key);
+            if (val) {
+                return JSON.parse(val);
+            }
+        } catch (e) {
+            // Cache miss
+        }
+        return null;
+    },
+
+    _cacheSet: function(key, value) {
+        try {
+            var cache = new GlideCache('idp_catalog_cache', this.CACHE_TTL_SECONDS);
+            cache.put(key, JSON.stringify(value));
+        } catch (e) {
+            gs.logWarning('IDPCatalogEngine._cacheSet failed: ' + e.message, 'IDPCatalogEngine');
+        }
+    },
+
+    _cacheClear: function(key) {
+        try {
+            var cache = new GlideCache('idp_catalog_cache', this.CACHE_TTL_SECONDS);
+            cache.remove(key);
+        } catch (e) {
+            gs.logWarning('IDPCatalogEngine._cacheClear failed: ' + e.message, 'IDPCatalogEngine');
+        }
+    },
+
+    type: 'IDPCatalogEngine'
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 03:22:00</sys_created_on>
+        <sys_id>e003000000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPCatalogEngine</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_script_include_e003000000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 03:22:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

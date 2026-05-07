@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes_customized>false</consumes_customized>
+        <http_method>POST</http_method>
+        <name>AI Ask</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    try {
+        // Require IDP user role
+        if (!gs.hasRole('x_146833_idpkiro.user')) {
+            response.setStatus(403);
+            response.setBody({ error: 'Access denied. IDP user role required.' });
+            return;
+        }
+
+        var body = request.body.data;
+        if (!body || !body.question) {
+            response.setStatus(400);
+            response.setBody({ error: 'Request body must include a "question" field.' });
+            return;
+        }
+
+        var ai = new x_146833_idpkiro.IDPAIOrchestrator();
+        var result = ai.ask(body.question, gs.getUserID());
+
+        response.setStatus(200);
+        response.setBody({ result: result });
+
+    } catch (e) {
+        gs.logError('IDP /ai/ask error: ' + e.message, 'IDP-API');
+        response.setStatus(500);
+        response.setBody({ error: 'Internal server error.' });
+    }
+})(request, response);
+]]></operation_script>
+        <operation_uri>/ai/ask</operation_uri>
+        <produces_customized>false</produces_customized>
+        <relative_path>/ai/ask</relative_path>
+        <request_example><![CDATA[{"question": "How do I create a new microservice pipeline?"}]]></request_example>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>false</requires_snc_internal_role>
+        <short_description>Ask the Platform AI a free-text question about the IDP.</short_description>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 04:16:00</sys_created_on>
+        <sys_id>api002000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>AI Ask</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sys_ws_operation_api002000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 04:16:00</sys_updated_on>
+        <web_service_definition>api001000000000000000000000001</web_service_definition>
+    </sys_ws_operation>
+</record_update>

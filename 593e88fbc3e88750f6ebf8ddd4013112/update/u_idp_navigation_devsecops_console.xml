@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DevSecOps Console Navigation Items for AWS DevSecOps Engineer -->
+<record_update table="x_146833_idpkiro_u_idp_navigation_item">
+    <x_146833_idpkiro_u_idp_navigation_item action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <icon>cloud</icon>
+        <label>AWS Infrastructure</label>
+        <name>AWS Infrastructure</name>
+        <order>100</order>
+        <quick_link>true</quick_link>
+        <required_capabilities>cap_aws_provision_infra</required_capabilities>
+        <taxonomy display_value="DevSecOps Console">tax_devsecops_001</taxonomy>
+        <url>/idpkiro/aws/infrastructure</url>
+        <sys_class_name>x_146833_idpkiro_u_idp_navigation_item</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 06:00:00</sys_created_on>
+        <sys_id>nav_aws_001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>AWS Infrastructure</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_idp_navigation_devsecops_console</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
+    </x_146833_idpkiro_u_idp_navigation_item>
+</record_update>
