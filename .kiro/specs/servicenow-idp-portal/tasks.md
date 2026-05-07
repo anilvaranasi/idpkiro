@@ -177,3 +177,107 @@ All tasks below correspond to ServiceNow XML update set files committed to the s
 ### Business Rules
 
 - [x] 11.8 Create Business Rule - Invalidate agent cache on build agent changes
+
+---
+
+## Task Group 12: Port.io Feature Parity
+
+### Scorecards Framework
+
+- [x] 12.1 Create table u_idp_scorecard (name, scorecard_type, entity_type, entity_id, target_score, active)
+- [x] 12.2 Create table u_idp_scorecard_rule (scorecard, name, category, description, weight, evaluation_script, remediation_script, order, active)
+- [x] 12.3 Create table u_idp_scorecard_result (scorecard, entity_id, rule, result_value, result_message, evaluated_on)
+- [x] 12.4 Create IDPScorecardEngine Script Include with:
+  - calculateScore(scorecardId, entityId) - Evaluate all rules and return score
+  - evaluateRule(rule, entityId) - Execute rule evaluation script
+  - createDORAScorecard(teamId) - Create DORA metrics scorecard
+  - createProductionReadinessScorecard(serviceId) - Create production readiness scorecard
+  - triggerRemediation(scorecardId, entityId, results) - Auto-remediation on low scores
+  - notifyTeam(scorecardId, entityId, results) - Notify on scorecard drops
+
+### Self-Service Actions
+
+- [x] 12.5 Create table u_idp_action_form (name, title, description, icon, category, requires_approval, ttl_enabled, default_ttl_hours, execution_type, execution_script, active)
+- [x] 12.6 Create table u_idp_form_field (action_form, step_number, step_title, field_name, field_label, field_type, required, default_value, validation_regex, validation_message, options, placeholder, help_text, depends_on, show_if_value, field_order)
+- [x] 12.7 Create table u_idp_action_execution (action_form, submitted_by, form_data, status, submitted_on, completed_on, result, error_message, approval_flow)
+- [x] 12.8 Create IDPSelfServiceEngine Script Include with:
+  - getFormDefinition(formId) - Get form with all steps and fields
+  - validateSubmission(formId, formData) - Validate form with regex and type checking
+  - executeAction(formId, formData, userId) - Execute action with optional approval
+  - initiateApproval(executionId, form, formData, userId) - Start approval workflow
+  - processApproval(stepId, decision, comments, userId) - Process approval decision
+  - executeNow(executionId, form, formData, userId) - Execute action immediately
+  - setupTTL(executionId, ttlHours, resourceId, resourceType) - Set up resource expiration
+  - getAvailableActions(userId) - Get actions user can execute
+  - getExecutionHistory(userId, limit) - Get user's action history
+
+### Approval Workflows
+
+- [x] 12.9 Create table u_idp_approval_flow (execution, status, requested_by, requested_on, completed_on)
+- [x] 12.10 Create table u_idp_approval_step (approval_flow, step_number, approver, status, approval_type, decision_by, decision_on, comments)
+
+### TTL (Time-to-Live)
+
+- [x] 12.11 Create table u_idp_ttl_resource (execution, resource_id, resource_type, ttl_hours, expires_at, status, expired_on)
+- [x] 12.12 Create scheduled job - TTL Resource Cleanup (runs every 15 minutes)
+- [x] 12.13 Create scheduled job - Scorecard Daily Calculation (runs daily at 2 AM)
+
+### REST API Extensions
+
+- [x] 12.14 Create endpoint GET /api/x_146833_idpkiro/actions - List available actions
+- [x] 12.15 Create endpoint GET /api/x_146833_idpkiro/action/form/{formId} - Get form definition
+- [x] 12.16 Create endpoint POST /api/x_146833_idpkiro/action/execute - Execute self-service action
+- [x] 12.17 Create endpoint POST /api/x_146833_idpkiro/approval/process - Process approval decision
+- [x] 12.18 Create endpoint POST /api/x_146833_idpkiro/scorecard/calculate - Calculate scorecard score
+
+### Seed Data - Action Templates
+
+- [x] 12.19 Create action form: Provision Development Environment (with TTL)
+- [x] 12.20 Create action form: Scaffold New Service
+- [x] 12.21 Create action form: Rollback Deployment (with approval)
+- [x] 12.22 Create form fields for environment provisioning (name, size, region)
+- [x] 12.23 Create form fields with validation (regex for environment name)
+
+---
+
+## Task Group 13: Integration Framework (Service Graph Connectors)
+
+### Data Model
+
+- [x] 13.1 Create table u_idp_integration_connector (connector_type, name, endpoint_url, auth_type, auth_config, sync_interval, sync_enabled, webhook_url, status, last_sync, active)
+- [x] 13.2 Create table u_idp_integration_sync (connector, entity_type, status, started_at, completed_at, options, result)
+- [x] 13.3 Create table u_idp_external_entity (connector, external_id, entity_type, name, entity_data, last_synced)
+- [x] 13.4 Create table u_idp_webhook_event (connector_type, payload, headers, received_at, status, processed_at, result)
+
+### Core Engine
+
+- [x] 13.5 Create IDPIntegrationEngine Script Include with:
+  - registerConnector(type, config) - Register new connector with validation
+  - testConnection(connectorId) - Test connectivity to external system
+  - executeSync(connectorId, entityType, options) - Execute sync for specific entity type
+  - processWebhook(connectorType, data, headers) - Process incoming webhooks
+  - getExternalEntities(connectorId, entityType) - Get synced entities
+  - syncAllConnectors() - Sync all active connectors
+
+### Connector Implementations
+
+- [x] 13.6 Create IDPKubernetesConnector - Pods, Deployments, Services, Namespaces, Nodes
+- [x] 13.7 Create IDPGitHubConnector - Repositories, PRs, Workflow Runs, Issues
+- [x] 13.8 Create IDPAWSConnector - EC2, Lambda, S3, RDS, ECS, CloudWatch
+
+### REST API
+
+- [x] 13.9 Create endpoint POST /api/x_146833_idpkiro/connector/register - Register new connector
+- [x] 13.10 Create endpoint POST /api/x_146833_idpkiro/connector/{id}/sync - Trigger connector sync
+- [x] 13.11 Create endpoint POST /api/x_146833_idpkiro/webhook/{type}/{id} - Receive webhooks
+
+### Scheduled Jobs
+
+- [x] 13.12 Create scheduled job - Integration Sync (every 15 minutes)
+
+### Supported Integrations
+
+- [x] 13.13 Kubernetes (bearer token auth)
+- [x] 13.14 GitHub (OAuth2/PAT auth)
+- [x] 13.15 AWS (IAM role auth via Service Graph)
+- GitLab, GCP, Azure, PagerDuty, Datadog, Slack, Terraform (framework ready, credentials needed)

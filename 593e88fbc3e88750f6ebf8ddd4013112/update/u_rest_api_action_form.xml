@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri>/api/x_146833_idpkiro/action/form/{formId}</default_operation_uri>
+        <operation_name>get_action_form</operation_name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    var formId = request.pathParams.formId;
+    
+    if (!formId) {
+        response.setStatus(400);
+        response.setError('formId is required');
+        return;
+    }
+
+    var engine = new x_146833_idpkiro.IDPSelfServiceEngine();
+    var form = engine.getFormDefinition(formId);
+
+    if (!form.sys_id) {
+        response.setStatus(404);
+        response.setError('Form not found');
+        return;
+    }
+
+    response.setStatus(200);
+    response.setBody({
+        success: true,
+        form: form
+    });
+})(request, response);]]></operation_script>
+        <produces>application/json</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/action/form/{formId}</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <short_description>Get action form definition</short_description>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 08:00:00</sys_created_on>
+        <sys_id>rest_op_action_form</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>get_action_form</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_rest_api_action_form</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
+        <web_service_definition display_value="IDP Kiro API">ws_def_idp_kiro</web_service_definition>
+        <web_service_function/>
+    </sys_ws_operation>
+</record_update>
