@@ -93,3 +93,43 @@ All tasks below correspond to ServiceNow XML update set files committed to the s
 - [ ]* 9.4 Configure AI provider: set x_146833_idpkiro.ai.enabled=true, set endpoint and api_key system properties
 - [ ]* 9.5 Create Service Catalog items with u_required_capabilities and u_taxonomy fields populated
 - [ ]* 9.6 Wire GitLab CI/CD integration to cap_create_pipeline and cap_deploy_service capabilities via u_execution_endpoint on catalog items
+
+---
+
+## Task Group 10: DevSecOps Lifecycle Configuration
+
+### ServiceNow Developer (DevOps Tenant) Persona
+
+- [x] 10.1 Create role: x_146833_idpkiro.sn_developer
+- [x] 10.2 Create taxonomy: ServiceNow DevOps
+- [x] 10.3 Create capability: cap_view_demand (View Demand Intake)
+- [x] 10.4 Create capability: cap_create_scoped_app (Create Scoped App)
+- [x] 10.5 Create capability: cap_access_gitlab (Access GitLab Repos)
+- [x] 10.6 Create capability: cap_run_build_pipeline (Run Build Pipeline)
+- [x] 10.7 Create capability: cap_run_atf (Run ATF Tests)
+- [x] 10.8 Create capability: cap_run_sast (Run SAST Scan)
+- [x] 10.9 Create capability: cap_deploy_to_instance (Deploy to Instance)
+- [x] 10.10 Create capability: cap_view_app_logs (View App Logs)
+- [x] 10.11 Create capability: cap_create_incident (Create Incident)
+- [x] 10.12 Create capability: cap_create_change_request (Create Change Request)
+- [x] 10.13 Create 10 role-capability mappings for sn_developer role
+- [x] 10.14 Create navigation items for ServiceNow DevOps taxonomy
+
+### DevSecOps Engineer (AWS Platform) Persona
+
+- [x] 10.15 Create role: x_146833_idpkiro.devsecops_engineer
+- [x] 10.16 Create taxonomy: DevSecOps Console
+- [x] 10.17 Create capability: cap_aws_provision_infra (Provision AWS Infrastructure)
+- [x] 10.18 Create capability: cap_aws_configure_iam (Configure AWS IAM)
+- [x] 10.19 Create capability: cap_aws_deploy_lambda (Deploy Lambda Functions)
+- [x] 10.20 Create capability: cap_aws_configure_vpc (Configure VPC Networking)
+- [x] 10.21 Create capability: cap_aws_setup_monitoring (Setup CloudWatch Monitoring)
+- [x] 10.22 Create capability: cap_aws_configure_alerts (Configure CloudWatch Alerts)
+- [x] 10.23 Create capability: cap_aws_run_security_scan (Run AWS Security Scans)
+- [x] 10.24 Create capability: cap_aws_configure_waf (Configure AWS WAF)
+- [x] 10.25 Create capability: cap_aws_manage_secrets (Manage AWS Secrets)
+- [x] 10.26 Create capability: cap_aws_view_costs (View AWS Costs)
+- [x] 10.27 Create capability: cap_aws_review_compliance (Review AWS Compliance)
+- [x] 10.28 Create capability: cap_aws_manage_certs (Manage AWS Certificates)
+- [x] 10.29 Create 12 role-capability mappings for devsecops_engineer role
+- [x] 10.30 Create navigation items for DevSecOps Console taxonomy
