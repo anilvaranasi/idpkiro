@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
+    <sp_page action="INSERT_OR_UPDATE">
+        <acss/>
+        <category>general</category>
+        <css/>
+        <description>IDP Risk Dashboard — security risk assessments and compliance reports. Requires cap_manage_risk capability (security_engineer or platform_admin role).</description>
+        <draft>false</draft>
+        <id>idp_risk_dashboard</id>
+        <internal>false</internal>
+        <public>false</public>
+        <roles>x_146833_idpkiro.user</roles>
+        <short_description>Risk &amp; Compliance Dashboard</short_description>
+        <sys_class_name>sp_page</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 05:00:00</sys_created_on>
+        <sys_id>pg006000000000000000000000001</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>idp_risk_dashboard</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>sp_page_pg006000000000000000000000001</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 05:00:00</sys_updated_on>
+        <title>Risk &amp; Compliance</title>
+    </sp_page>
+</record_update>

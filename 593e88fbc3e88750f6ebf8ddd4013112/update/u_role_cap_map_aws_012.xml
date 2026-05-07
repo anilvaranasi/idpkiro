@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_role_capability_map">
+    <x_146833_idpkiro_u_role_capability_map action="INSERT_OR_UPDATE">
+        <role display_value="x_146833_idpkiro.devsecops_engineer">role_devsecops_eng_001</role>
+        <capability display_value="Manage AWS Certificates">cap_aws_devops_012</capability>
+        <sys_class_name>x_146833_idpkiro_u_role_capability_map</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 06:00:00</sys_created_on>
+        <sys_id>rcm_aws_012</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_role_cap_map_aws_012</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
+    </x_146833_idpkiro_u_role_capability_map>
+</record_update>

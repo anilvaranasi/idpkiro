@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_capability">
+    <x_146833_idpkiro_u_idp_capability action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <capability_id>cap_run_build_pipeline</capability_id>
+        <description>Execute CI/CD build pipelines for ServiceNow scoped applications via GitLab CI integration.</description>
+        <icon>build</icon>
+        <name>Run Build Pipeline</name>
+        <sys_class_name>x_146833_idpkiro_u_idp_capability</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 06:00:00</sys_created_on>
+        <sys_id>cap_sn_dev_004</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Run Build Pipeline</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_idp_capability_sn004_build</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
+    </x_146833_idpkiro_u_idp_capability>
+</record_update>
