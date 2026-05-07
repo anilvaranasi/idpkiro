@@ -133,3 +133,47 @@ All tasks below correspond to ServiceNow XML update set files committed to the s
 - [x] 10.28 Create capability: cap_aws_manage_certs (Manage AWS Certificates)
 - [x] 10.29 Create 12 role-capability mappings for devsecops_engineer role
 - [x] 10.30 Create navigation items for DevSecOps Console taxonomy
+
+---
+
+## Task Group 11: Build Agent Selection Engine
+
+### Data Model
+
+- [x] 11.1 Create table u_idp_build_agent (agent_id, name, provider, model, context_window, quality_score, speed_score, input_cost_per_1k, output_cost_per_1k, specializations, active)
+- [x] 11.2 Create table u_idp_agent_selection (requirement, task_type, estimated_context_tokens, selected_agent, quality_weight, token_cost_weight, speed_weight)
+
+### Core Engine
+
+- [x] 11.3 Create BuildAgentSelector Script Include with:
+  - selectAgent(requirement, options) - Main selection algorithm
+  - classifyTask(requirement) - Task type classification via keyword analysis
+  - estimateTokens(text) - Token count estimation
+  - scoreAgent(agent, params) - Weighted scoring algorithm
+  - generateReasoning(selected, taskType) - Human-readable explanation
+  - getActiveAgents() - Cached agent registry retrieval
+  - invalidateCache() - Cache management
+
+### REST API
+
+- [x] 11.4 Create endpoint POST /api/x_146833_idpkiro/agent/select - Select optimal agent
+- [x] 11.5 Create endpoint GET /api/x_146833_idpkiro/agent/list - List all active agents
+- [x] 11.6 Create endpoint POST /api/x_146833_idpkiro/agent/compare - Compare all agents with scoring breakdown
+
+### Seed Data
+
+- [x] 11.7 Seed 10 build agents with real pricing and benchmarks:
+  - Claude 3 Opus (quality: 95, cost: high)
+  - GPT-4 Turbo (quality: 92, cost: medium-high)
+  - Gemini 1.5 Pro (quality: 88, context: 1M tokens)
+  - Claude 3 Sonnet (quality: 85, balanced)
+  - DeepSeek Coder (quality: 83, cost: very low)
+  - Mistral Large (quality: 82, cost: low)
+  - CodeLlama 70B (quality: 78, cost: very low)
+  - GPT-3.5 Turbo (quality: 70, speed: 95)
+  - GitHub Copilot (quality: 75, speed: 98)
+  - Llama 3 70B (quality: 80, cost: very low)
+
+### Business Rules
+
+- [x] 11.8 Create Business Rule - Invalidate agent cache on build agent changes

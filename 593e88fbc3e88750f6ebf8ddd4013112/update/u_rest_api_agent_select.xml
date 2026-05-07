@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri>/api/x_146833_idpkiro/agent/select</default_operation_uri>
+        <operation_name>select_agent</operation_name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    var body = request.body.data;
+    
+    if (!body.requirement) {
+        response.setStatus(400);
+        response.setError('Requirement is required');
+        return;
+    }
+
+    var options = {
+        qualityWeight: body.qualityWeight || 0.5,
+        tokenCostWeight: body.tokenCostWeight || 0.3,
+        speedWeight: body.speedWeight || 0.2
+    };
+
+    var selector = new x_146833_idpkiro.BuildAgentSelector();
+    var result = selector.selectAgent(body.requirement, options);
+
+    if (result.error) {
+        response.setStatus(400);
+        response.setError(result.error);
+        return;
+    }
+
+    response.setStatus(200);
+    response.setBody({
+        success: true,
+        result: {
+            agent: {
+                sys_id: result.selectedAgent.sys_id,
+                agent_id: result.selectedAgent.agent_id,
+                name: result.selectedAgent.name,
+                provider: result.selectedAgent.provider,
+                model: result.selectedAgent.model,
+                context_window: result.selectedAgent.context_window
+            },
+            score: result.score,
+            reasoning: result.reasoning,
+            allScores: result.allScores
+        }
+    });
+})(request, response);]]></operation_script>
+        <produces>application/json</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/agent/select</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <short_description>Select optimal build agent for a given requirement</short_description>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 07:00:00</sys_created_on>
+        <sys_id>rest_op_agent_select</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>select_agent</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_rest_api_agent_select</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 07:00:00</sys_updated_on>
+        <web_service_definition display_value="IDP Kiro API">ws_def_idp_kiro</web_service_definition>
+        <web_service_function/>
+    </sys_ws_operation>
+</record_update>

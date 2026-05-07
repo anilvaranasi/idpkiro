@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.BuildAgentSelector</api_name>
+        <client_callable>true</client_callable>
+        <description>Intelligent Build Agent Selection Engine
+
+Analyzes requirements and selects optimal build agent based on:
+- Token cost efficiency (input/output pricing)
+- Output quality benchmarks
+- Response speed metrics
+- Task type specialization
+- Context window requirements
+
+Selection Algorithm:
+1. Parse requirement to determine task type
+2. Estimate token count for context
+3. Filter agents by context window compatibility
+4. Score agents by weighted criteria:
+   - quality_weight * quality_score
+   - token_cost_weight * (1 / normalized_cost)
+   - speed_weight * speed_score
+   - specialization_bonus if task matches
+5. Return highest scoring agent with reasoning</description>
+        <name>BuildAgentSelector</name>
+        <script><![CDATA[var BuildAgentSelector = Class.create();
+BuildAgentSelector.prototype = {
+    initialize: function() {
+        this.TABLE_BUILD_AGENT = 'x_146833_idpkiro_u_idp_build_agent';
+        this.TABLE_SELECTION = 'x_146833_idpkiro_u_idp_agent_selection';
+        this.CACHE_KEY = 'idp_build_agent_registry';
+        this.CACHE_TTL = 300; // 5 minutes
+        
+        // Task type keywords for classification
+        this.TASK_KEYWORDS = {
+            'code_generation': ['create', 'build', 'generate', 'implement', 'develop', 'write code', 'scaffold'],
+            'code_review': ['review', 'analyze', 'audit', 'check', 'lint', 'refactor'],
+            'debugging': ['debug', 'fix', 'resolve', 'error', 'bug', 'issue', 'troubleshoot'],
+            'documentation': ['document', 'readme', 'docs', 'explain', 'describe', 'comment'],
+            'testing': ['test', 'spec', 'verify', 'validate', 'unit test', 'integration'],
+            'architecture': ['design', 'architect', 'structure', 'pattern', 'system design'],
+            'optimization': ['optimize', 'improve', 'enhance', 'performance', 'speed up'],
+            'security': ['security', 'vulnerability', 'scan', 'harden', 'compliance'],
+            'infrastructure': ['deploy', 'provision', 'terraform', 'cloudformation', 'infrastructure', 'iac'],
+            'general': []
+        };
+    },
+
+    /**
+     * Main selection method - analyzes requirement and returns best agent
+     * @param {String} requirement - The task/requirement description
+     * @param {Object} options - Optional weights: {qualityWeight, tokenCostWeight, speedWeight}
+     * @returns {Object} - {selectedAgent, score, reasoning, allScores}
+     */
+    selectAgent: function(requirement, options) {
+        if (!requirement) {
+            return {error: 'Requirement is required'};
+        }
+
+        options = options || {};
+        var qualityWeight = options.qualityWeight || 0.5;
+        var tokenCostWeight = options.tokenCostWeight || 0.3;
+        var speedWeight = options.speedWeight || 0.2;
+
+        // Normalize weights to sum to 1
+        var totalWeight = qualityWeight + tokenCostWeight + speedWeight;
+        qualityWeight = qualityWeight / totalWeight;
+        tokenCostWeight = tokenCostWeight / totalWeight;
+        speedWeight = speedWeight / totalWeight;
+
+        // Step 1: Classify task type
+        var taskType = this.classifyTask(requirement);
+
+        // Step 2: Estimate context tokens
+        var estimatedTokens = this.estimateTokens(requirement);
+
+        // Step 3: Get all active agents
+        var agents = this.getActiveAgents();
+
+        if (!agents || agents.length === 0) {
+            return {error: 'No active build agents configured'};
+        }
+
+        // Step 4: Filter by context window
+        var compatibleAgents = agents.filter(function(agent) {
+            return agent.context_window >= estimatedTokens;
+        });
+
+        if (compatibleAgents.length === 0) {
+            // Fall back to largest context agent
+            compatibleAgents = [agents.reduce(function(max, agent) {
+                return agent.context_window > max.context_window ? agent : max;
+            }, agents[0])];
+        }
+
+        // Step 5: Score each agent
+        var scoredAgents = [];
+        var maxCost = this.getMaxCost(compatibleAgents);
+
+        for (var i = 0; i < compatibleAgents.length; i++) {
+            var agent = compatibleAgents[i];
+            var score = this.scoreAgent(agent, {
+                taskType: taskType,
+                estimatedTokens: estimatedTokens,
+                maxCost: maxCost,
+                qualityWeight: qualityWeight,
+                tokenCostWeight: tokenCostWeight,
+                speedWeight: speedWeight
+            });
+            scoredAgents.push({
+                agent: agent,
+                score: score.total,
+                breakdown: score.breakdown
+            });
+        }
+
+        // Step 6: Sort by score descending
+        scoredAgents.sort(function(a, b) {
+            return b.score - a.score;
+        });
+
+        var selected = scoredAgents[0];
+
+        // Step 7: Log selection for audit
+        this.logSelection({
+            requirement: requirement,
+            taskType: taskType,
+            estimatedTokens: estimatedTokens,
+            selectedAgent: selected.agent.sys_id,
+            score: selected.score,
+            weights: {
+                quality: qualityWeight,
+                tokenCost: tokenCostWeight,
+                speed: speedWeight
+            }
+        });
+
+        return {
+            selectedAgent: selected.agent,
+            score: selected.score,
+            reasoning: this.generateReasoning(selected, taskType),
+            allScores: scoredAgents.map(function(s) {
+                return {name: s.agent.name, score: s.score, breakdown: s.breakdown};
+            })
+        };
+    },
+
+    /**
+     * Classify task type based on keywords
+     */
+    classifyTask: function(requirement) {
+        var text = requirement.toLowerCase();
+        var scores = {};
+
+        for (var taskType in this.TASK_KEYWORDS) {
+            scores[taskType] = 0;
+            var keywords = this.TASK_KEYWORDS[taskType];
+            for (var i = 0; i < keywords.length; i++) {
+                if (text.indexOf(keywords[i]) !== -1) {
+                    scores[taskType] += 1;
+                }
+            }
+        }
+
+        // Find highest scoring task type
+        var maxScore = 0;
+        var maxType = 'general';
+        for (var type in scores) {
+            if (scores[type] > maxScore) {
+                maxScore = scores[type];
+                maxType = type;
+            }
+        }
+
+        return maxType;
+    },
+
+    /**
+     * Estimate token count (rough: 1 token ~= 4 chars)
+     */
+    estimateTokens: function(text) {
+        if (!text) return 100;
+        // Base estimation plus buffer for context overhead
+        return Math.ceil(text.length / 4) + 500;
+    },
+
+    /**
+     * Get all active build agents from cache or database
+     */
+    getActiveAgents: function() {
+        var cached = GlideCache.get(this.CACHE_KEY);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+
+        var agents = [];
+        var gr = new GlideRecord(this.TABLE_BUILD_AGENT);
+        gr.addQuery('active', true);
+        gr.query();
+
+        while (gr.next()) {
+            agents.push({
+                sys_id: gr.sys_id.toString(),
+                agent_id: gr.agent_id.toString(),
+                name: gr.name.toString(),
+                provider: gr.provider.toString(),
+                model: gr.model.toString(),
+                context_window: parseInt(gr.context_window) || 4096,
+                quality_score: parseInt(gr.quality_score) || 50,
+                speed_score: parseInt(gr.speed_score) || 50,
+                input_cost_per_1k: parseFloat(gr.input_cost_per_1k) || 0,
+                output_cost_per_1k: parseFloat(gr.output_cost_per_1k) || 0,
+                specializations: gr.specializations.toString().split(',').map(function(s) { return s.trim(); })
+            });
+        }
+
+        GlideCache.set(this.CACHE_KEY, JSON.stringify(agents), this.CACHE_TTL);
+        return agents;
+    },
+
+    /**
+     * Get maximum cost among agents for normalization
+     */
+    getMaxCost: function(agents) {
+        return agents.reduce(function(max, agent) {
+            var totalCost = agent.input_cost_per_1k + agent.output_cost_per_1k;
+            return totalCost > max ? totalCost : max;
+        }, 0);
+    },
+
+    /**
+     * Score an individual agent
+     */
+    scoreAgent: function(agent, params) {
+        var breakdown = {};
+        
+        // Quality score (normalized 0-1)
+        breakdown.quality = agent.quality_score / 100;
+
+        // Cost score (inverted and normalized)
+        var totalCost = agent.input_cost_per_1k + agent.output_cost_per_1k;
+        breakdown.cost = params.maxCost > 0 ? (1 - (totalCost / params.maxCost)) : 1;
+
+        // Speed score (normalized 0-1)
+        breakdown.speed = agent.speed_score / 100;
+
+        // Specialization bonus
+        var specializationBonus = 0;
+        if (agent.specializations && agent.specializations.indexOf(params.taskType) !== -1) {
+            specializationBonus = 0.2; // 20% bonus for specialization match
+        }
+        breakdown.specializationBonus = specializationBonus;
+
+        // Calculate weighted total
+        var total = (breakdown.quality * params.qualityWeight) +
+                    (breakdown.cost * params.tokenCostWeight) +
+                    (breakdown.speed * params.speedWeight) +
+                    specializationBonus;
+
+        breakdown.weighted = {
+            quality: breakdown.quality * params.qualityWeight,
+            cost: breakdown.cost * params.tokenCostWeight,
+            speed: breakdown.speed * params.speedWeight
+        };
+
+        return {total: total, breakdown: breakdown};
+    },
+
+    /**
+     * Generate human-readable reasoning for selection
+     */
+    generateReasoning: function(selected, taskType) {
+        var reasons = [];
+        var agent = selected.agent;
+        var breakdown = selected.breakdown;
+
+        reasons.push('Selected "' + agent.name + '" for ' + taskType + ' task');
+        
+        if (breakdown.quality > 0.8) {
+            reasons.push('High quality score (' + agent.quality_score + '/100)');
+        }
+        if (breakdown.cost > 0.7) {
+            reasons.push('Cost efficient ($' + agent.input_cost_per_1k + '/$' + agent.output_cost_per_1k + ' per 1K tokens)');
+        }
+        if (breakdown.speed > 0.8) {
+            reasons.push('Fast response time (score: ' + agent.speed_score + '/100)');
+        }
+        if (breakdown.specializationBonus > 0) {
+            reasons.push('Specialized for ' + taskType + ' tasks');
+        }
+        if (agent.context_window >= 100000) {
+            reasons.push('Large context window (' + agent.context_window + ' tokens)');
+        }
+
+        return reasons.join('. ') + '.';
+    },
+
+    /**
+     * Log selection for audit trail
+     */
+    logSelection: function(data) {
+        try {
+            var gr = new GlideRecord(this.TABLE_SELECTION);
+            gr.initialize();
+            gr.setValue('requirement', data.requirement);
+            gr.setValue('task_type', data.taskType);
+            gr.setValue('estimated_context_tokens', data.estimatedTokens);
+            gr.setValue('selected_agent', data.selectedAgent);
+            gr.setValue('quality_weight', data.weights.quality);
+            gr.setValue('token_cost_weight', data.weights.tokenCost);
+            gr.setValue('speed_weight', data.weights.speed);
+            gr.insert();
+        } catch (e) {
+            gs.warn('Failed to log agent selection: ' + e.message);
+        }
+    },
+
+    /**
+     * Get recommendations for weight tuning based on historical data
+     */
+    getWeightRecommendations: function(taskType) {
+        // Analyze past selections for this task type
+        var gr = new GlideAggregate(this.TABLE_SELECTION);
+        gr.addQuery('task_type', taskType);
+        gr.addAggregate('AVG', 'quality_weight');
+        gr.addAggregate('AVG', 'token_cost_weight');
+        gr.addAggregate('AVG', 'speed_weight');
+        gr.addAggregate('COUNT');
+        gr.groupBy('task_type');
+        gr.query();
+
+        if (gr.next()) {
+            return {
+                taskType: taskType,
+                sampleSize: gr.getAggregate('COUNT'),
+                avgWeights: {
+                    quality: parseFloat(gr.getAggregate('AVG', 'quality_weight')),
+                    tokenCost: parseFloat(gr.getAggregate('AVG', 'token_cost_weight')),
+                    speed: parseFloat(gr.getAggregate('AVG', 'speed_weight'))
+                }
+            };
+        }
+
+        return null;
+    },
+
+    /**
+     * Invalidate agent cache (call when agents are updated)
+     */
+    invalidateCache: function() {
+        GlideCache.flush(this.CACHE_KEY);
+    },
+
+    type: 'BuildAgentSelector'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 07:00:00</sys_created_on>
+        <sys_id>si_build_agent_selector</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>BuildAgentSelector</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_script_include_build_agent_selector</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 07:00:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

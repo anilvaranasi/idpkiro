@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri>/api/x_146833_idpkiro/agent/list</default_operation_uri>
+        <operation_name>list_agents</operation_name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    var selector = new x_146833_idpkiro.BuildAgentSelector();
+    var agents = selector.getActiveAgents();
+
+    response.setStatus(200);
+    response.setBody({
+        success: true,
+        count: agents.length,
+        agents: agents.map(function(a) {
+            return {
+                sys_id: a.sys_id,
+                agent_id: a.agent_id,
+                name: a.name,
+                provider: a.provider,
+                model: a.model,
+                context_window: a.context_window,
+                quality_score: a.quality_score,
+                speed_score: a.speed_score,
+                input_cost_per_1k: a.input_cost_per_1k,
+                output_cost_per_1k: a.output_cost_per_1k,
+                specializations: a.specializations
+            };
+        })
+    });
+})(request, response);]]></operation_script>
+        <produces>application/json</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/agent/list</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <short_description>List all active build agents</short_description>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 07:00:00</sys_created_on>
+        <sys_id>rest_op_agent_list</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>list_agents</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_rest_api_agent_list</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 07:00:00</sys_updated_on>
+        <web_service_definition display_value="IDP Kiro API">ws_def_idp_kiro</web_service_function>
+        <web_service_function/>
+    </sys_ws_operation>
+</record_update>
