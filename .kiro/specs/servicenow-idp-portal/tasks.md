@@ -240,6 +240,42 @@ All tasks below correspond to ServiceNow XML update set files committed to the s
 
 ---
 
+## Task Group 14: MCP Server for IDP Kiro
+
+### Core Implementation
+
+- [x] 14.1 Create MCP server package.json with dependencies
+- [x] 14.2 Create TypeScript configuration (tsconfig.json)
+- [x] 14.3 Create main server entry point (src/index.ts)
+- [x] 14.4 Create README with setup instructions
+- [x] 14.5 Create .env.example for configuration
+- [x] 14.6 Create .gitignore
+
+### Service Catalog Tools
+
+- [x] 14.7 Implement idp_list_services tool
+- [x] 14.8 Implement idp_get_service tool
+- [x] 14.9 Implement idp_create_service tool
+- [x] 14.10 Implement idp_search_services tool
+
+### Self-Service Actions Tools
+
+- [x] 14.11 Implement idp_list_actions tool
+- [x] 14.12 Implement idp_get_action_form tool
+- [x] 14.13 Implement idp_execute_action tool
+- [x] 14.14 Implement idp_get_execution_status tool
+- [x] 14.15 Implement idp_list_my_executions tool
+
+### Capability & Access Tools
+
+- [x] 14.16 Implement idp_check_capability tool
+- [x] 14.17 Implement idp_list_capabilities tool
+- [x] 14.18 Implement idp_get_user_roles tool
+- [x] 14.19 Implement idp_request_access tool
+- [x] 14.20 Implement idp_get_navigation tool
+
+---
+
 ## Task Group 13: Integration Framework (Service Graph Connectors)
 
 ### Data Model
