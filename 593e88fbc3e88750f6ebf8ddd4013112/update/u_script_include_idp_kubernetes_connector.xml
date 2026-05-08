@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPKubernetesConnector</api_name>
+        <client_callable>false</client_callable>
+        <description>Kubernetes connector using Service Graph framework.
+
+Syncs:
+- Pods, Deployments, Services
+- Namespaces, Nodes
+- ConfigMaps, Secrets (metadata only)
+- Ingress, PersistentVolumes</description>
+        <name>IDPKubernetesConnector</name>
+        <script><![CDATA[var IDPKubernetesConnector = Class.create();
+IDPKubernetesConnector.prototype = {
+    initialize: function() {
+        this.API_VERSION = 'v1';
+    },
+
+    /**
+     * Execute Kubernetes API request
+     */
+    execute: function(connector, operation, params) {
+        switch (operation) {
+            case 'test':
+                return this.testConnection(connector);
+            case 'sync':
+                return this.syncEntities(connector, params);
+            default:
+                return {success: false, message: 'Unknown operation: ' + operation};
+        }
+    },
+
+    /**
+     * Test Kubernetes connection
+     */
+    testConnection: function(connector) {
+        try {
+            var response = this.apiRequest(connector, '/api/' + this.API_VERSION + '/namespaces');
+            return {
+                success: response.success,
+                message: response.success ? 'Connected to Kubernetes cluster' : response.error
+            };
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    /**
+     * Sync entities from Kubernetes
+     */
+    syncEntities: function(connector, params) {
+        var entityType = params.entityType;
+        var entities = [];
+
+        try {
+            var endpoint = this.getEndpoint(entityType);
+            var response = this.apiRequest(connector, endpoint);
+
+            if (!response.success) {
+                return {success: false, message: response.error};
+            }
+
+            var items = response.data.items || [];
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                entities.push({
+                    id: item.metadata.uid,
+                    type: entityType,
+                    name: item.metadata.name,
+                    data: {
+                        name: item.metadata.name,
+                        namespace: item.metadata.namespace || '',
+                        labels: item.metadata.labels || {},
+                        annotations: item.metadata.annotations || {},
+                        creationTimestamp: item.metadata.creationTimestamp,
+                        status: this.getEntityStatus(item)
+                    }
+                });
+            }
+
+            return {success: true, entities: entities, message: 'Synced ' + entities.length + ' ' + entityType + 's'};
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    /**
+     * Get API endpoint for entity type
+     */
+    getEndpoint: function(entityType) {
+        var endpoints = {
+            'pod': '/api/' + this.API_VERSION + '/pods',
+            'deployment': '/apis/apps/v1/deployments',
+            'service': '/api/' + this.API_VERSION + '/services',
+            'namespace': '/api/' + this.API_VERSION + '/namespaces',
+            'node': '/api/' + this.API_VERSION + '/nodes',
+            'configmap': '/api/' + this.API_VERSION + '/configmaps',
+            'ingress': '/apis/networking.k8s.io/v1/ingresses',
+            'persistentvolume': '/api/' + this.API_VERSION + '/persistentvolumes'
+        };
+        return endpoints[entityType] || '/api/' + this.API_VERSION;
+    },
+
+    /**
+     * Extract entity status
+     */
+    getEntityStatus: function(item) {
+        if (item.status) {
+            if (item.status.phase) return item.status.phase;
+            if (item.status.conditions && item.status.conditions.length > 0) {
+                return item.status.conditions[0].status;
+            }
+        }
+        return 'Unknown';
+    },
+
+    /**
+     * Make Kubernetes API request
+     */
+    apiRequest: function(connector, endpoint) {
+        try {
+            var request = new sn_ws.RESTMessageV2();
+            request.setEndpoint(connector.endpoint_url + endpoint);
+            request.setHttpMethod('GET');
+            request.setRequestHeader('Authorization', 'Bearer ' + connector.auth_config.token);
+            request.setRequestHeader('Accept', 'application/json');
+
+            var response = request.execute();
+            var responseBody = response.getBody();
+            var httpStatus = response.getStatusCode();
+
+            if (httpStatus >= 200 && httpStatus < 300) {
+                return {success: true, data: JSON.parse(responseBody)};
+            } else {
+                return {success: false, error: 'HTTP ' + httpStatus + ': ' + responseBody};
+            }
+        } catch (e) {
+            return {success: false, error: e.message};
+        }
+    },
+
+    /**
+     * Process Kubernetes webhook events
+     */
+    processWebhook: function(data, headers) {
+        // Process Kubernetes events (from Event API)
+        var eventType = data.type || 'unknown';
+        var eventObject = data.object || {};
+
+        return {
+            success: true,
+            eventType: eventType,
+            entity: {
+                id: eventObject.metadata ? eventObject.metadata.uid : null,
+                name: eventObject.metadata ? eventObject.metadata.name : 'unknown',
+                type: eventObject.kind || 'unknown'
+            }
+        };
+    },
+
+    type: 'IDPKubernetesConnector'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 09:00:00</sys_created_on>
+        <sys_id>si_k8s_connector</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPKubernetesConnector</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_script_include_idp_kubernetes_connector</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 09:00:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPSelfServiceEngine</api_name>
+        <client_callable>true</client_callable>
+        <description>Self-Service Actions Engine for Port.io-equivalent features.
+
+Features:
+- Multi-step wizard forms
+- Input validation
+- Manual approvals
+- TTL (Time-to-Live) for provisioned resources
+- Execution history tracking
+- Action templates</description>
+        <name>IDPSelfServiceEngine</name>
+        <script><![CDATA[var IDPSelfServiceEngine = Class.create();
+IDPSelfServiceEngine.prototype = {
+    initialize: function() {
+        this.TABLE_FORM = 'x_146833_idpkiro_u_idp_action_form';
+        this.TABLE_FIELD = 'x_146833_idpkiro_u_idp_form_field';
+        this.TABLE_EXECUTION = 'x_146833_idpkiro_u_idp_action_execution';
+        this.TABLE_APPROVAL = 'x_146833_idpkiro_u_idp_approval_flow';
+        this.TABLE_APPROVAL_STEP = 'x_146833_idpkiro_u_idp_approval_step';
+        this.TABLE_TTL = 'x_146833_idpkiro_u_idp_ttl_resource';
+    },
+
+    /**
+     * Get form definition with all fields
+     */
+    getFormDefinition: function(formId) {
+        var form = {};
+        var gr = new GlideRecord(this.TABLE_FORM);
+        if (gr.get(formId)) {
+            form = {
+                sys_id: gr.sys_id.toString(),
+                name: gr.name.toString(),
+                title: gr.title.toString(),
+                description: gr.description.toString(),
+                icon: gr.icon.toString(),
+                requires_approval: gr.getValue('requires_approval') === '1',
+                ttl_enabled: gr.getValue('ttl_enabled') === '1',
+                default_ttl_hours: parseInt(gr.default_ttl_hours) || 24,
+                execution_type: gr.execution_type.toString(),
+                execution_script: gr.execution_script.toString(),
+                steps: this.getFormSteps(formId)
+            };
+        }
+        return form;
+    },
+
+    /**
+     * Get all steps and fields for a form
+     */
+    getFormSteps: function(formId) {
+        var steps = {};
+        var gr = new GlideRecord(this.TABLE_FIELD);
+        gr.addQuery('action_form', formId);
+        gr.orderBy('step_number');
+        gr.orderBy('field_order');
+        gr.query();
+
+        while (gr.next()) {
+            var stepNum = parseInt(gr.step_number) || 1;
+            if (!steps[stepNum]) {
+                steps[stepNum] = {
+                    step_number: stepNum,
+                    step_title: gr.step_title.toString() || 'Step ' + stepNum,
+                    fields: []
+                };
+            }
+
+            steps[stepNum].fields.push({
+                sys_id: gr.sys_id.toString(),
+                field_name: gr.field_name.toString(),
+                field_label: gr.field_label.toString(),
+                field_type: gr.field_type.toString(),
+                required: gr.getValue('required') === '1',
+                default_value: gr.default_value.toString(),
+                validation_regex: gr.validation_regex.toString(),
+                validation_message: gr.validation_message.toString(),
+                options: gr.options.toString(),
+                placeholder: gr.placeholder.toString(),
+                help_text: gr.help_text.toString(),
+                depends_on: gr.depends_on.toString(),
+                show_if_value: gr.show_if_value.toString()
+            });
+        }
+
+        return Object.keys(steps).map(function(k) { return steps[k]; });
+    },
+
+    /**
+     * Validate form submission
+     */
+    validateSubmission: function(formId, formData) {
+        var errors = [];
+        var form = this.getFormDefinition(formId);
+
+        if (!form.sys_id) {
+            return {valid: false, errors: [{field: 'form', message: 'Form not found'}]};
+        }
+
+        // Validate each field
+        for (var stepNum in form.steps) {
+            var step = form.steps[stepNum];
+            for (var i = 0; i < step.fields.length; i++) {
+                var field = step.fields[i];
+                var value = formData[field.field_name];
+
+                // Check required
+                if (field.required && (!value || value === '')) {
+                    errors.push({
+                        step: step.step_number,
+                        field: field.field_name,
+                        message: field.field_label + ' is required'
+                    });
+                    continue;
+                }
+
+                // Check regex validation
+                if (value && field.validation_regex) {
+                    var regex = new RegExp(field.validation_regex);
+                    if (!regex.test(value)) {
+                        errors.push({
+                            step: step.step_number,
+                            field: field.field_name,
+                            message: field.validation_message || 'Invalid value for ' + field.field_label
+                        });
+                    }
+                }
+
+                // Check field type validations
+                if (value) {
+                    var typeError = this.validateFieldType(field, value);
+                    if (typeError) {
+                        errors.push({
+                            step: step.step_number,
+                            field: field.field_name,
+                            message: typeError
+                        });
+                    }
+                }
+            }
+        }
+
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
+    },
+
+    /**
+     * Validate field by type
+     */
+    validateFieldType: function(field, value) {
+        switch (field.field_type) {
+            case 'email':
+                var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) return 'Invalid email format';
+                break;
+            case 'number':
+                if (isNaN(value)) return 'Must be a number';
+                break;
+            case 'url':
+                try {
+                    new GlideURI(value);
+                } catch (e) {
+                    return 'Invalid URL format';
+                }
+                break;
+            case 'date':
+                var date = new GlideDateTime();
+                if (!date.setValueUTC(value, 'yyyy-MM-dd')) return 'Invalid date format';
+                break;
+        }
+        return null;
+    },
+
+    /**
+     * Execute a self-service action
+     */
+    executeAction: function(formId, formData, userId) {
+        // Validate first
+        var validation = this.validateSubmission(formId, formData);
+        if (!validation.valid) {
+            return {success: false, errors: validation.errors};
+        }
+
+        var form = this.getFormDefinition(formId);
+        
+        // Create execution record
+        var executionId = this.createExecution(formId, formData, userId);
+
+        // Check if approval required
+        if (form.requires_approval) {
+            return this.initiateApproval(executionId, form, formData, userId);
+        }
+
+        // Execute directly
+        return this.executeNow(executionId, form, formData, userId);
+    },
+
+    /**
+     * Create execution record
+     */
+    createExecution: function(formId, formData, userId) {
+        var gr = new GlideRecord(this.TABLE_EXECUTION);
+        gr.initialize();
+        gr.setValue('action_form', formId);
+        gr.setValue('submitted_by', userId);
+        gr.setValue('form_data', JSON.stringify(formData));
+        gr.setValue('status', 'pending');
+        gr.setValue('submitted_on', new GlideDateTime());
+        
+        var execId = gr.insert();
+        return execId;
+    },
+
+    /**
+     * Initiate approval workflow
+     */
+    initiateApproval: function(executionId, form, formData, userId) {
+        // Create approval flow
+        var gr = new GlideRecord(this.TABLE_APPROVAL);
+        gr.initialize();
+        gr.setValue('execution', executionId);
+        gr.setValue('status', 'pending');
+        gr.setValue('requested_by', userId);
+        gr.setValue('requested_on', new GlideDateTime());
+        
+        var approvalId = gr.insert();
+
+        // Create approval steps based on form configuration
+        this.createApprovalSteps(approvalId, form);
+
+        // Update execution status
+        var exec = new GlideRecord(this.TABLE_EXECUTION);
+        if (exec.get(executionId)) {
+            exec.setValue('status', 'awaiting_approval');
+            exec.setValue('approval_flow', approvalId);
+            exec.update();
+        }
+
+        // Notify approvers
+        this.notifyApprovers(approvalId);
+
+        return {
+            success: true,
+            requiresApproval: true,
+            executionId: executionId,
+            approvalId: approvalId,
+            message: 'Action submitted for approval'
+        };
+    },
+
+    /**
+     * Create approval steps
+     */
+    createApprovalSteps: function(approvalId, form) {
+        // Get approval configuration from form
+        var approvers = form.approvers ? form.approvers.split(',') : [];
+        
+        for (var i = 0; i < approvers.length; i++) {
+            var gr = new GlideRecord(this.TABLE_APPROVAL_STEP);
+            gr.initialize();
+            gr.setValue('approval_flow', approvalId);
+            gr.setValue('step_number', i + 1);
+            gr.setValue('approver', approvers[i].trim());
+            gr.setValue('status', i === 0 ? 'pending' : 'waiting');
+            gr.setValue('approval_type', 'any'); // any, all, majority
+            gr.insert();
+        }
+    },
+
+    /**
+     * Notify approvers
+     */
+    notifyApprovers: function(approvalId) {
+        var gr = new GlideRecord(this.TABLE_APPROVAL_STEP);
+        gr.addQuery('approval_flow', approvalId);
+        gr.addQuery('status', 'pending');
+        gr.query();
+
+        while (gr.next()) {
+            gs.eventQueue('idp.approval.requested', gr, gr.approval.toString(), gr.approval_flow.toString());
+        }
+    },
+
+    /**
+     * Process approval decision
+     */
+    processApproval: function(stepId, decision, comments, userId) {
+        var gr = new GlideRecord(this.TABLE_APPROVAL_STEP);
+        if (!gr.get(stepId)) {
+            return {success: false, message: 'Approval step not found'};
+        }
+
+        // Update step
+        gr.setValue('status', decision);
+        gr.setValue('decision_by', userId);
+        gr.setValue('decision_on', new GlideDateTime());
+        gr.setValue('comments', comments);
+        gr.update();
+
+        // Check if all steps complete
+        var flowId = gr.approval_flow.toString();
+        var flowResult = this.checkApprovalFlowStatus(flowId);
+
+        if (flowResult.complete) {
+            // Update approval flow
+            var flow = new GlideRecord(this.TABLE_APPROVAL);
+            if (flow.get(flowId)) {
+                flow.setValue('status', flowResult.approved ? 'approved' : 'rejected');
+                flow.setValue('completed_on', new GlideDateTime());
+                flow.update();
+
+                // If approved, execute the action
+                if (flowResult.approved) {
+                    var execId = flow.execution.toString();
+                    var exec = new GlideRecord(this.TABLE_EXECUTION);
+                    if (exec.get(execId)) {
+                        var form = this.getFormDefinition(exec.action_form.toString());
+                        var formData = JSON.parse(exec.form_data.toString());
+                        return this.executeNow(execId, form, formData, userId);
+                    }
+                }
+            }
+        }
+
+        return {
+            success: true,
+            status: flowResult.complete ? 'complete' : 'pending',
+            approved: flowResult.approved
+        };
+    },
+
+    /**
+     * Check if approval flow is complete
+     */
+    checkApprovalFlowStatus: function(flowId) {
+        var steps = [];
+        var gr = new GlideRecord(this.TABLE_APPROVAL_STEP);
+        gr.addQuery('approval_flow', flowId);
+        gr.query();
+
+        while (gr.next()) {
+            steps.push({
+                step_number: parseInt(gr.step_number),
+                status: gr.status.toString(),
+                approval_type: gr.approval_type.toString()
+            });
+        }
+
+        var pending = steps.filter(function(s) { return s.status === 'pending' || s.status === 'waiting'; });
+        var approved = steps.filter(function(s) { return s.status === 'approved'; });
+        var rejected = steps.filter(function(s) { return s.status === 'rejected'; });
+
+        // If any rejection, flow is rejected
+        if (rejected.length > 0) {
+            return {complete: true, approved: false};
+        }
+
+        // If all approved, flow is approved
+        if (pending.length === 0 && approved.length > 0) {
+            return {complete: true, approved: true};
+        }
+
+        return {complete: false, approved: false};
+    },
+
+    /**
+     * Execute the action now
+     */
+    executeNow: function(executionId, form, formData, userId) {
+        try {
+            // Execute the action script
+            var executor = new Function('formData', 'userId', 'gs', 'executionId',
+                'return (function() { ' + form.execution_script + ' })();'
+            );
+            var result = executor(formData, userId, gs, executionId);
+
+            // Update execution record
+            var gr = new GlideRecord(this.TABLE_EXECUTION);
+            if (gr.get(executionId)) {
+                gr.setValue('status', 'completed');
+                gr.setValue('completed_on', new GlideDateTime());
+                gr.setValue('result', JSON.stringify(result));
+                gr.update();
+
+                // Set up TTL if enabled
+                if (form.ttl_enabled && result.resourceId) {
+                    this.setupTTL(executionId, form.default_ttl_hours, result.resourceId, result.resourceType);
+                }
+            }
+
+            return {
+                success: true,
+                executionId: executionId,
+                result: result
+            };
+        } catch (e) {
+            // Update execution with error
+            var gr = new GlideRecord(this.TABLE_EXECUTION);
+            if (gr.get(executionId)) {
+                gr.setValue('status', 'failed');
+                gr.setValue('error_message', e.message);
+                gr.update();
+            }
+
+            return {
+                success: false,
+                executionId: executionId,
+                error: e.message
+            };
+        }
+    },
+
+    /**
+     * Setup TTL for a resource
+     */
+    setupTTL: function(executionId, ttlHours, resourceId, resourceType) {
+        var expiresAt = new GlideDateTime();
+        expiresAt.add(ttlHours * 3600 * 1000); // Add hours in milliseconds
+
+        var gr = new GlideRecord(this.TABLE_TTL);
+        gr.initialize();
+        gr.setValue('execution', executionId);
+        gr.setValue('resource_id', resourceId);
+        gr.setValue('resource_type', resourceType);
+        gr.setValue('ttl_hours', ttlHours);
+        gr.setValue('expires_at', expiresAt);
+        gr.setValue('status', 'active');
+        gr.insert();
+
+        // Schedule expiration job
+        gs.eventQueue('idp.ttl.created', gr, resourceId, expiresAt.getValue());
+    },
+
+    /**
+     * Get available actions for user
+     */
+    getAvailableActions: function(userId) {
+        var actions = [];
+        var gr = new GlideRecord(this.TABLE_FORM);
+        gr.addQuery('active', true);
+        gr.orderBy('name');
+        gr.query();
+
+        while (gr.next()) {
+            // Check capability requirement
+            if (gr.required_capability) {
+                var security = new x_146833_idpkiro.IDPSecurity();
+                if (!security.hasCapability(gr.required_capability.toString())) {
+                    continue;
+                }
+            }
+
+            actions.push({
+                sys_id: gr.sys_id.toString(),
+                name: gr.name.toString(),
+                title: gr.title.toString(),
+                description: gr.description.toString(),
+                icon: gr.icon.toString(),
+                requires_approval: gr.getValue('requires_approval') === '1',
+                category: gr.category.toString()
+            });
+        }
+
+        return actions;
+    },
+
+    /**
+     * Get execution history for user
+     */
+    getExecutionHistory: function(userId, limit) {
+        limit = limit || 50;
+        var history = [];
+        var gr = new GlideRecord(this.TABLE_EXECUTION);
+        gr.addQuery('submitted_by', userId);
+        gr.orderByDesc('submitted_on');
+        gr.setLimit(limit);
+        gr.query();
+
+        while (gr.next()) {
+            history.push({
+                sys_id: gr.sys_id.toString(),
+                action_name: gr.action_form.name.toString(),
+                status: gr.status.toString(),
+                submitted_on: gr.submitted_on.toString(),
+                completed_on: gr.completed_on.toString(),
+                error_message: gr.error_message.toString()
+            });
+        }
+
+        return history;
+    },
+
+    type: 'IDPSelfServiceEngine'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 08:00:00</sys_created_on>
+        <sys_id>si_self_service_engine</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPSelfServiceEngine</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_script_include_idp_self_service_engine</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

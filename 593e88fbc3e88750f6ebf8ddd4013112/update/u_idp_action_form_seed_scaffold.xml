@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_action_form">
+    <x_146833_idpkiro_u_idp_action_form action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <category>Development</category>
+        <default_ttl_hours>0</default_ttl_hours>
+        <description>Scaffold a new microservice from a template with standardized structure, CI/CD pipeline, and documentation.</description>
+        <execution_script><![CDATA[// Create service record
+var service = new GlideRecord('cmdb_ci_service_auto');
+service.initialize();
+service.setValue('name', formData.service_name);
+service.setValue('short_description', formData.service_description);
+service.setValue('owned_by', userId);
+service.setValue('service_type', formData.service_type);
+service.setValue('language', formData.language);
+service.setValue('framework', formData.framework);
+var serviceId = service.insert();
+
+// Trigger scaffolding workflow
+var workflow = new Workflow();
+workflow.startWorkflow('service_scaffolding', serviceId, {
+    template: formData.template,
+    git_provider: formData.git_provider
+});
+
+// Create initial scorecard
+var scorecardEngine = new x_146833_idpkiro.IDPScorecardEngine();
+scorecardEngine.createProductionReadinessScorecard(serviceId);
+
+return {
+    success: true,
+    resourceId: serviceId,
+    resourceType: 'service',
+    message: 'Service scaffolding started. Check your Git repository.'
+};]]></execution_script>
+        <execution_type>workflow</execution_type>
+        <icon>code</icon>
+        <name>Scaffold New Service</name>
+        <requires_approval>false</requires_approval>
+        <title>Scaffold New Service</title>
+        <ttl_enabled>false</ttl_enabled>
+        <sys_class_name>x_146833_idpkiro_u_idp_action_form</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 08:00:00</sys_created_on>
+        <sys_id>form_scaffold_service</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Scaffold New Service</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_idp_action_form_scaffold_service</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
+    </x_146833_idpkiro_u_idp_action_form>
+</record_update>

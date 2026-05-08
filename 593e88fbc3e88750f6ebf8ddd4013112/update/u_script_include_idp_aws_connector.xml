@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPAWSConnector</api_name>
+        <client_callable>false</client_callable>
+        <description>AWS connector using Service Graph Connector framework.
+
+Discovers:
+- EC2 instances, Lambda functions
+- S3 buckets, RDS instances
+- ECS clusters, EKS clusters
+- CloudWatch alarms, metrics</description>
+        <name>IDPAWSConnector</name>
+        <script><![CDATA[var IDPAWSConnector = Class.create();
+IDPAWSConnector.prototype = {
+    initialize: function() {
+        this.REGIONS = ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'];
+    },
+
+    execute: function(connector, operation, params) {
+        switch (operation) {
+            case 'test':
+                return this.testConnection(connector);
+            case 'sync':
+                return this.syncEntities(connector, params);
+            default:
+                return {success: false, message: 'Unknown operation: ' + operation};
+        }
+    },
+
+    testConnection: function(connector) {
+        try {
+            // Use STS GetCallerIdentity to test
+            var response = this.awsRequest(connector, 'sts', 'GetCallerIdentity', {});
+            return {
+                success: response.success,
+                message: response.success ? 'Connected to AWS as ' + response.data.Arn : response.error
+            };
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    syncEntities: function(connector, params) {
+        var entityType = params.entityType;
+        var entities = [];
+        var region = params.options.region || connector.auth_config.region || 'us-east-1';
+
+        try {
+            var result = this.discoverEntities(connector, entityType, region);
+            
+            if (!result.success) {
+                return {success: false, message: result.error};
+            }
+
+            entities = result.entities;
+
+            return {success: true, entities: entities, message: 'Synced ' + entities.length + ' ' + entityType + 's from ' + region};
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    discoverEntities: function(connector, entityType, region) {
+        var service = this.getServiceForEntity(entityType);
+        var operation = this.getOperationForEntity(entityType);
+        
+        var response = this.awsRequest(connector, service, operation, {}, region);
+        
+        if (!response.success) {
+            return {success: false, error: response.error};
+        }
+
+        var entities = this.parseAwsResponse(entityType, response.data, region);
+        return {success: true, entities: entities};
+    },
+
+    getServiceForEntity: function(entityType) {
+        var mapping = {
+            'ec2_instance': 'ec2',
+            'lambda_function': 'lambda',
+            's3_bucket': 's3',
+            'rds_instance': 'rds',
+            'ecs_cluster': 'ecs',
+            'eks_cluster': 'eks',
+            'cloudwatch_alarm': 'cloudwatch'
+        };
+        return mapping[entityType] || 'ec2';
+    },
+
+    getOperationForEntity: function(entityType) {
+        var mapping = {
+            'ec2_instance': 'DescribeInstances',
+            'lambda_function': 'ListFunctions',
+            's3_bucket': 'ListBuckets',
+            'rds_instance': 'DescribeDBInstances',
+            'ecs_cluster': 'ListClusters',
+            'eks_cluster': 'ListClusters',
+            'cloudwatch_alarm': 'DescribeAlarms'
+        };
+        return mapping[entityType] || 'DescribeInstances';
+    },
+
+    parseAwsResponse: function(entityType, data, region) {
+        var entities = [];
+
+        switch (entityType) {
+            case 'ec2_instance':
+                var reservations = data.Reservations || [];
+                for (var r = 0; r < reservations.length; r++) {
+                    var instances = reservations[r].Instances || [];
+                    for (var i = 0; i < instances.length; i++) {
+                        var inst = instances[i];
+                        entities.push({
+                            id: inst.InstanceId,
+                            type: entityType,
+                            name: this.getTagValue(inst.Tags, 'Name') || inst.InstanceId,
+                            data: {
+                                instanceId: inst.InstanceId,
+                                instanceType: inst.InstanceType,
+                                state: inst.State ? inst.State.Name : 'unknown',
+                                region: region,
+                                launchTime: inst.LaunchTime,
+                                privateIp: inst.PrivateIpAddress,
+                                publicIp: inst.PublicIpAddress,
+                                tags: inst.Tags || []
+                            }
+                        });
+                    }
+                }
+                break;
+
+            case 'lambda_function':
+                var functions = data.Functions || [];
+                for (var f = 0; f < functions.length; f++) {
+                    var fn = functions[f];
+                    entities.push({
+                        id: fn.FunctionArn,
+                        type: entityType,
+                        name: fn.FunctionName,
+                        data: {
+                            functionName: fn.FunctionName,
+                            functionArn: fn.FunctionArn,
+                            runtime: fn.Runtime,
+                            handler: fn.Handler,
+                            codeSize: fn.CodeSize,
+                            lastModified: fn.LastModified,
+                            region: region
+                        }
+                    });
+                }
+                break;
+
+            case 's3_bucket':
+                var buckets = data.Buckets || [];
+                for (var b = 0; b < buckets.length; b++) {
+                    var bucket = buckets[b];
+                    entities.push({
+                        id: bucket.Name,
+                        type: entityType,
+                        name: bucket.Name,
+                        data: {
+                            name: bucket.Name,
+                            creationDate: bucket.CreationDate,
+                            region: region
+                        }
+                    });
+                }
+                break;
+
+            default:
+                // Generic parsing
+                if (Array.isArray(data)) {
+                    for (var i = 0; i < data.length; i++) {
+                        entities.push({
+                            id: data[i].id || data[i].name || 'unknown',
+                            type: entityType,
+                            name: data[i].name || 'Unknown',
+                            data: data[i]
+                        });
+                    }
+                }
+        }
+
+        return entities;
+    },
+
+    getTagValue: function(tags, key) {
+        if (!tags) return null;
+        for (var i = 0; i < tags.length; i++) {
+            if (tags[i].Key === key) {
+                return tags[i].Value;
+            }
+        }
+        return null;
+    },
+
+    awsRequest: function(connector, service, operation, params, region) {
+        try {
+            // In production, this would use AWS SDK with proper signing
+            // For now, use placeholder that works with Service Graph
+            var request = new sn_ws.RESTMessageV2();
+            
+            var endpoint = 'https://' + service + '.' + (region || 'us-east-1') + '.amazonaws.com';
+            var roleArn = connector.auth_config.roleArn;
+            
+            // Use Service Graph connector if available
+            if (typeof sn_sg !== 'undefined') {
+                var sgClient = new sn_sg.ServiceGraphClient();
+                return sgClient.executeAWSRequest(roleArn, service, operation, params, region);
+            }
+
+            // Fallback to direct API call (requires IAM role on instance)
+            request.setEndpoint(endpoint);
+            request.setHttpMethod('POST');
+            request.setRequestHeader('X-Amz-Target', 'AmazonEC2.' + operation);
+            request.setRequestHeader('Content-Type', 'application/x-amz-json-1.1');
+            request.setRequestBody(JSON.stringify(params));
+
+            var response = request.execute();
+            var httpStatus = response.getStatusCode();
+
+            if (httpStatus >= 200 && httpStatus < 300) {
+                return {success: true, data: JSON.parse(response.getBody())};
+            } else {
+                return {success: false, error: 'HTTP ' + httpStatus};
+            }
+        } catch (e) {
+            return {success: false, error: e.message};
+        }
+    },
+
+    processWebhook: function(data, headers) {
+        // AWS SNS/SQS webhook processing
+        var messageType = headers['x-amz-sns-message-type'] || 'unknown';
+        
+        return {
+            success: true,
+            eventType: messageType,
+            entity: {
+                id: data.MessageId || 'unknown',
+                name: data.Subject || 'AWS Event',
+                type: 'aws_event'
+            },
+            details: data
+        };
+    },
+
+    type: 'IDPAWSConnector'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 09:00:00</sys_created_on>
+        <sys_id>si_aws_connector</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPAWSConnector</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_script_include_idp_aws_connector</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 09:00:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

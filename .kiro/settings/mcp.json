@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "idp-kiro": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "cwd": ".kiro/specs/servicenow-idp-portal/mcp-server/idp-kiro-mcp",
+      "env": {
+        "SERVICENOW_INSTANCE": "${SERVICENOW_INSTANCE}",
+        "SERVICENOW_USER": "${SERVICENOW_USER}",
+        "SERVICENOW_PASSWORD": "${SERVICENOW_PASSWORD}"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "idp_list_services",
+        "idp_get_service",
+        "idp_search_services",
+        "idp_list_actions",
+        "idp_get_action_form",
+        "idp_list_capabilities",
+        "idp_get_navigation",
+        "idp_get_user_roles"
+      ]
+    }
+  }
+}
