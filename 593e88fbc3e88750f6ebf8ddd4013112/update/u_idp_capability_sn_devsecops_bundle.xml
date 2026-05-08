@@ -5,14 +5,14 @@
      ============================================================ -->
 
 <!-- ServiceNow Developer Capabilities -->
-<record_update table="x_146833_idpkiro_u_idp_capability">
-    <x_146833_idpkiro_u_idp_capability action="INSERT_OR_UPDATE">
+<record_update table="u_idp_capability">
+    <u_idp_capability action="INSERT_OR_UPDATE">
         <active>true</active>
         <capability_id>cap_view_demand</capability_id>
         <description>View demand intake and feature requests for ServiceNow development.</description>
         <icon>task</icon>
         <name>View Demand</name>
-        <sys_class_name>x_146833_idpkiro_u_idp_capability</sys_class_name>
+        <sys_class_name>u_idp_capability</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>cap_sn_dev_001</sys_id>
@@ -24,5 +24,5 @@
         <sys_update_name>u_idp_capability_sn_devsecops_bundle</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_idp_capability>
+    </u_idp_capability>
 </record_update>

@@ -12,9 +12,9 @@
         <language>en</language>
         <mandatory>false</mandatory>
         <max_length>32</max_length>
-        <name>u_role_capability_map</name>
+        <name>x_146833_idpkiro_u_role_capability_map</name>
         <read_only>false</read_only>
-        <reference>u_idp_capability</reference>
+        <reference>x_146833_idpkiro_u_idp_capability</reference>
         <sys_class_name>sys_dictionary</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 03:10:00</sys_created_on>

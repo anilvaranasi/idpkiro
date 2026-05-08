@@ -48,7 +48,7 @@ IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             }
 
             // Check if any of the user's roles map to this capability
-            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            var rcm = new GlideRecord('u_role_capability_map');
             rcm.addQuery('capability', capSysId);
             rcm.addQuery('role', 'IN', roles.join(','));
             rcm.setLimit(1);
@@ -100,7 +100,7 @@ IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
                 return false;
             }
 
-            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            var rcm = new GlideRecord('u_role_capability_map');
             rcm.addQuery('capability', capSysId);
             rcm.addQuery('role', 'IN', roles.join(','));
             rcm.setLimit(1);
@@ -128,7 +128,7 @@ IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             }
 
             var capSysIds = [];
-            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            var rcm = new GlideRecord('u_role_capability_map');
             rcm.addQuery('role', 'IN', roles.join(','));
             rcm.query();
             while (rcm.next()) {
@@ -140,7 +140,7 @@ IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             }
 
             var capIds = [];
-            var cap = new GlideRecord('x_146833_idpkiro_u_idp_capability');
+            var cap = new GlideRecord('u_idp_capability');
             cap.addQuery('sys_id', 'IN', capSysIds.join(','));
             cap.addQuery('active', true);
             cap.query();
@@ -158,7 +158,7 @@ IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
     // ---- Private helpers ----
 
     _getCapabilitySysId: function(capabilityId) {
-        var cap = new GlideRecord('x_146833_idpkiro_u_idp_capability');
+        var cap = new GlideRecord('u_idp_capability');
         cap.addQuery('capability_id', capabilityId);
         cap.addQuery('active', true);
         cap.setLimit(1);
@@ -182,7 +182,7 @@ IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
     },
 
     _getPersonaOverrideRoles: function(userId) {
-        var override = new GlideRecord('x_146833_idpkiro_u_user_persona_override');
+        var override = new GlideRecord('u_user_persona_override');
         override.addQuery('user', userId);
         override.setLimit(1);
         override.query();

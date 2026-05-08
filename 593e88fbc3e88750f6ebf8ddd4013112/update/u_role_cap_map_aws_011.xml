@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<record_update table="x_146833_idpkiro_u_role_capability_map">
-    <x_146833_idpkiro_u_role_capability_map action="INSERT_OR_UPDATE">
+<record_update table="u_role_capability_map">
+    <u_role_capability_map action="INSERT_OR_UPDATE">
         <role display_value="x_146833_idpkiro.devsecops_engineer">role_devsecops_eng_001</role>
         <capability display_value="Review AWS Compliance">cap_aws_devops_011</capability>
-        <sys_class_name>x_146833_idpkiro_u_role_capability_map</sys_class_name>
+        <sys_class_name>u_role_capability_map</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>rcm_aws_011</sys_id>
@@ -14,5 +14,5 @@
         <sys_update_name>u_role_cap_map_aws_011</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_role_capability_map>
+    </u_role_capability_map>
 </record_update>

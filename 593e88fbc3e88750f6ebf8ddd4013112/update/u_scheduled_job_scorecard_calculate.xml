@@ -12,7 +12,7 @@
 
 // Get all active scorecards
 var scorecards = [];
-var gr = new GlideRecord('x_146833_idpkiro_u_idp_scorecard');
+var gr = new GlideRecord('u_idp_scorecard');
 gr.addQuery('active', true);
 gr.query();
 

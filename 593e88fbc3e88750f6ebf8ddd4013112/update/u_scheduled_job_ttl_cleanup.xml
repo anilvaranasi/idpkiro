@@ -9,7 +9,7 @@
         <run_start>2026-05-06 08:00:00</run_start>
         <run_type>periodically</run_type>
         <script><![CDATA[// Find all expired TTL resources
-var ttlGr = new GlideRecord('x_146833_idpkiro_u_idp_ttl_resource');
+var ttlGr = new GlideRecord('u_idp_ttl_resource');
 ttlGr.addQuery('status', 'active');
 ttlGr.addQuery('expires_at', '<=', new GlideDateTime());
 ttlGr.query();
@@ -19,7 +19,7 @@ var expiredCount = 0;
 while (ttlGr.next()) {
     try {
         // Execute cleanup script for the resource
-        var execution = new GlideRecord('x_146833_idpkiro_u_idp_action_execution');
+        var execution = new GlideRecord('u_idp_action_execution');
         if (execution.get(ttlGr.execution.toString())) {
             var cleanupScript = execution.action_form.cleanup_script.toString();
             if (cleanupScript) {

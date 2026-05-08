@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<record_update table="x_146833_idpkiro_u_idp_taxonomy">
-    <x_146833_idpkiro_u_idp_taxonomy action="INSERT_OR_UPDATE">
+<record_update table="u_idp_taxonomy">
+    <u_idp_taxonomy action="INSERT_OR_UPDATE">
         <active>true</active>
         <icon>cloud</icon>
         <name>DevSecOps Console</name>
         <order>200</order>
-        <sys_class_name>x_146833_idpkiro_u_idp_taxonomy</sys_class_name>
+        <sys_class_name>u_idp_taxonomy</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>tax_devsecops_001</sys_id>
@@ -17,5 +17,5 @@
         <sys_update_name>u_idp_taxonomy_devsecops_console</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_idp_taxonomy>
+    </u_idp_taxonomy>
 </record_update>

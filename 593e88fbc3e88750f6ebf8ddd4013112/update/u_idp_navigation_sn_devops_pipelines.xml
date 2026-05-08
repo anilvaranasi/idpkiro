@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<record_update table="x_146833_idpkiro_u_idp_navigation_item">
-    <x_146833_idpkiro_u_idp_navigation_item action="INSERT_OR_UPDATE">
+<record_update table="u_idp_navigation_item">
+    <u_idp_navigation_item action="INSERT_OR_UPDATE">
         <active>true</active>
         <icon>build</icon>
         <label>CI/CD Pipelines</label>
@@ -10,7 +10,7 @@
         <required_capabilities>cap_run_build_pipeline</required_capabilities>
         <taxonomy display_value="ServiceNow DevOps">tax_sn_devops_001</taxonomy>
         <url>/idpkiro/sncicd/pipelines</url>
-        <sys_class_name>x_146833_idpkiro_u_idp_navigation_item</sys_class_name>
+        <sys_class_name>u_idp_navigation_item</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>nav_sn_devops_002</sys_id>
@@ -22,5 +22,5 @@
         <sys_update_name>u_idp_navigation_sn_devops_pipelines</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_idp_navigation_item>
+    </u_idp_navigation_item>
 </record_update>

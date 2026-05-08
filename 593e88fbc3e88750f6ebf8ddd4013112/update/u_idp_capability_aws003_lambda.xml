@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<record_update table="x_146833_idpkiro_u_idp_capability">
-    <x_146833_idpkiro_u_idp_capability action="INSERT_OR_UPDATE">
+<record_update table="u_idp_capability">
+    <u_idp_capability action="INSERT_OR_UPDATE">
         <active>true</active>
         <capability_id>cap_aws_deploy_lambda</capability_id>
         <description>Deploy and manage AWS Lambda functions with automated CI/CD pipelines.</description>
         <icon>function</icon>
         <name>Deploy Lambda Functions</name>
-        <sys_class_name>x_146833_idpkiro_u_idp_capability</sys_class_name>
+        <sys_class_name>u_idp_capability</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>cap_aws_devops_003</sys_id>
@@ -18,5 +18,5 @@
         <sys_update_name>u_idp_capability_aws003_lambda</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 06:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_idp_capability>
+    </u_idp_capability>
 </record_update>

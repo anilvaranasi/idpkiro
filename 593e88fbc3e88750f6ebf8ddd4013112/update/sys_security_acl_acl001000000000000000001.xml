@@ -5,7 +5,7 @@
         <advanced>true</advanced>
         <condition/>
         <description>READ access to u_idp_capability — requires x_146833_idpkiro.user role minimum.</description>
-        <name>u_idp_capability</name>
+        <name>x_146833_idpkiro_u_idp_capability</name>
         <operation>read</operation>
         <script><![CDATA[answer = gs.hasRole('x_146833_idpkiro.user');]]></script>
         <sys_class_name>sys_security_acl</sys_class_name>

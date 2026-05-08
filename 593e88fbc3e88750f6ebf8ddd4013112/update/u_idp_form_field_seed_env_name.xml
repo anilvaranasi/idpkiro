@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<record_update table="x_146833_idpkiro_u_idp_form_field">
-    <x_146833_idpkiro_u_idp_form_field action="INSERT_OR_UPDATE">
+<record_update table="u_idp_form_field">
+    <u_idp_form_field action="INSERT_OR_UPDATE">
         <action_form display_value="Provision Development Environment">form_provision_env</action_form>
         <default_value/>
         <depends_on/>
@@ -17,7 +17,7 @@
         <step_title>Environment Configuration</step_title>
         <validation_message>Environment name must be lowercase, alphanumeric with hyphens</validation_message>
         <validation_regex>^[a-z0-9][a-z0-9-]{2,30}[a-z0-9]$</validation_regex>
-        <sys_class_name>x_146833_idpkiro_u_idp_form_field</sys_class_name>
+        <sys_class_name>u_idp_form_field</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 08:00:00</sys_created_on>
         <sys_id>field_env_name</sys_id>
@@ -29,5 +29,5 @@
         <sys_update_name>u_idp_form_field_env_name</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_idp_form_field>
+    </u_idp_form_field>
 </record_update>

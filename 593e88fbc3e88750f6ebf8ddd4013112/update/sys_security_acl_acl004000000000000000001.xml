@@ -5,7 +5,7 @@
         <advanced>true</advanced>
         <condition/>
         <description>READ access to u_idp_taxonomy — requires x_146833_idpkiro.user role.</description>
-        <name>u_idp_taxonomy</name>
+        <name>x_146833_idpkiro_u_idp_taxonomy</name>
         <operation>read</operation>
         <script><![CDATA[answer = gs.hasRole('x_146833_idpkiro.user');]]></script>
         <sys_class_name>sys_security_acl</sys_class_name>

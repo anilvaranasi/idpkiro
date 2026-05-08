@@ -9,7 +9,7 @@
         <add_message>false</add_message>
         <advanced>true</advanced>
         <affected_field/>
-        <affected_table display_value="Build Agent" name="x_146833_idpkiro_u_idp_build_agent">x_146833_idpkiro_u_idp_build_agent</affected_table>
+        <affected_table display_value="Build Agent" name="x_146833_idpkiro_u_idp_build_agent">u_idp_build_agent</affected_table>
         <apply_to>set</apply_to>
         <application/>
         <applies_extended>false</applies_extended>
