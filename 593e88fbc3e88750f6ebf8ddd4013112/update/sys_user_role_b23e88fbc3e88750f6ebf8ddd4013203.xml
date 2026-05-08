@@ -4,7 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>Site Reliability Engineer (SRE) / Operations Engineer persona — full read access to Observability Dashboard and incident management. Responsible for reliability and incident response.</description>
         <elevated_privilege>false</elevated_privilege>
-        <federated_id/>
+        <federated_id>nFpGTLEj9kJSrRqSHDHDcu0HsOmwApnM8g+8s3gkJxA=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>
         <name>x_146833_idpkiro.sre</name>

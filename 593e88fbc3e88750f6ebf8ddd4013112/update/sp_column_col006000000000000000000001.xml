@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_column">
     <sp_column action="INSERT_OR_UPDATE">
+        <aria_label/>
+        <class_name/>
         <order>20</order>
-        <row>row003000000000000000000000001</row>
+        <semantic_tag/>
         <size>9</size>
-        <sp_widget>w004000000000000000000000001</sp_widget>
+        <size_lg/>
+        <size_sm/>
+        <size_xs/>
+        <sp_row/>
         <sys_class_name>sp_column</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 05:12:00</sys_created_on>

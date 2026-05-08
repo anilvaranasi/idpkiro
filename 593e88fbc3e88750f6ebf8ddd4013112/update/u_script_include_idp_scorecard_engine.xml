@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script_include">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
         <active>true</active>
         <api_name>x_146833_idpkiro.IDPScorecardEngine</api_name>
+        <caller_access/>
         <client_callable>true</client_callable>
         <description>Scorecard Engine for DORA metrics, production readiness, security, and compliance checks.
 
@@ -13,7 +13,9 @@ Port.io-equivalent Scorecard Features:
 - Security compliance checks
 - Health checks with auto-remediation
 - Golden signals monitoring</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPScorecardEngine</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var IDPScorecardEngine = Class.create();
 IDPScorecardEngine.prototype = {
     initialize: function() {

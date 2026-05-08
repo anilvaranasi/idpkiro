@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_container">
     <sp_container action="INSERT_OR_UPDATE">
+        <aria_label/>
         <background_color/>
+        <background_image/>
+        <background_style/>
         <bootstrap_alt>false</bootstrap_alt>
-        <css_class>idp-page-container</css_class>
-        <layout>12</layout>
+        <class_name/>
+        <container_class_name/>
+        <name/>
         <order>10</order>
-        <page>pg001000000000000000000000001</page>
+        <semantic_tag/>
+        <sp_page/>
+        <subheader>false</subheader>
         <sys_class_name>sp_container</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 05:05:00</sys_created_on>

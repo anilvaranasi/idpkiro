@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_row">
     <sp_row action="INSERT_OR_UPDATE">
-        <container>cnt006000000000000000000000001</container>
+        <aria_label/>
+        <class_name/>
         <order>10</order>
+        <semantic_tag/>
+        <sp_column/>
+        <sp_container/>
         <sys_class_name>sp_row</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 05:15:00</sys_created_on>

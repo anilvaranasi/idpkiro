@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
     <sys_ws_operation action="INSERT_OR_UPDATE">
         <active>true</active>
+        <consumes/>
         <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl/>
         <http_method>POST</http_method>
         <name>AI Recommend</name>
         <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
@@ -28,14 +31,16 @@
     }
 })(request, response);
 ]]></operation_script>
-        <operation_uri>/ai/recommend</operation_uri>
+        <operation_uri>/api/ai/recommend</operation_uri>
+        <produces/>
         <produces_customized>false</produces_customized>
         <relative_path>/ai/recommend</relative_path>
-        <request_example><![CDATA[{"currentPage": "idp_home", "recentActions": ["viewed_catalog"]}]]></request_example>
+        <request_example>{"currentPage": "idp_home", "recentActions": ["viewed_catalog"]}</request_example>
         <requires_acl_authorization>true</requires_acl_authorization>
         <requires_authentication>true</requires_authentication>
         <requires_snc_internal_role>false</requires_snc_internal_role>
         <short_description>Get AI-driven catalog item and action recommendations based on user context.</short_description>
+        <support_trailing_slash>false</support_trailing_slash>
         <sys_class_name>sys_ws_operation</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 04:17:00</sys_created_on>
@@ -48,6 +53,7 @@
         <sys_update_name>sys_ws_operation_api003000000000000000001</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 04:17:00</sys_updated_on>
-        <web_service_definition>api001000000000000000000000001</web_service_definition>
+        <web_service_definition display_value="IDP Kiro API">api001000000000000000000000001</web_service_definition>
+        <web_service_version/>
     </sys_ws_operation>
 </record_update>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="capability_id" label="Capability ID" language="en" table="u_idp_capability">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element>capability_id</element>
+            <help/>
+            <hint/>
+            <label>Capability ID</label>
+            <language>en</language>
+            <name>u_idp_capability</name>
+            <plural>Capability IDs</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-05-07 08:55:28</sys_created_on>
+            <sys_id>9ca17a0cc370cb50f6ebf8ddd4013105</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Capability ID</sys_name>
+            <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+            <sys_update_name>sys_documentation_u_idp_capability_capability_id_en</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-05-07 08:55:28</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

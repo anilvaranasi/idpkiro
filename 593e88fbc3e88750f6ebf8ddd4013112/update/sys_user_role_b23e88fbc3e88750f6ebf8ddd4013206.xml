@@ -4,7 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>ServiceNow Platform Administrator — full read and write access to all IDP modules, tables, portal pages, and API endpoints. Inherits all IDP persona roles.</description>
         <elevated_privilege>false</elevated_privilege>
-        <federated_id/>
+        <federated_id>CyfWQ88X75oDW/IzPfVzeapuYhUoL14HPiBdOXNy2t0=</federated_id>
         <grantable>true</grantable>
         <includes_roles>b23e88fbc3e88750f6ebf8ddd4013201,b23e88fbc3e88750f6ebf8ddd4013202,b23e88fbc3e88750f6ebf8ddd4013203,b23e88fbc3e88750f6ebf8ddd4013204,b23e88fbc3e88750f6ebf8ddd4013205</includes_roles>
         <name>x_146833_idpkiro.platform_admin</name>

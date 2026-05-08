@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script_include">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
         <active>true</active>
         <api_name>x_146833_idpkiro.IDPSelfServiceEngine</api_name>
+        <caller_access/>
         <client_callable>true</client_callable>
         <description>Self-Service Actions Engine for Port.io-equivalent features.
 
@@ -14,7 +14,9 @@ Features:
 - TTL (Time-to-Live) for provisioned resources
 - Execution history tracking
 - Action templates</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPSelfServiceEngine</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var IDPSelfServiceEngine = Class.create();
 IDPSelfServiceEngine.prototype = {
     initialize: function() {

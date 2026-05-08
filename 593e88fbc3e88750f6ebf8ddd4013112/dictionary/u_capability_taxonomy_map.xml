@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="enforce_dot_walk_cross_scope_access=true" db_object_id="4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c" label="Capability Taxonomy Map" max_length="0" name="u_capability_taxonomy_map" type="collection">
+        <element label="Capability" max_length="32" name="capability" reference="u_idp_capability" type="reference"/>
+        <element label="Taxonomy" max_length="32" name="taxonomy" reference="u_idp_taxonomy" type="reference"/>
+        <index name="index">
+            <element name="capability"/>
+        </index>
+        <index name="index2">
+            <element name="taxonomy"/>
+        </index>
+    </element>
+</database>
