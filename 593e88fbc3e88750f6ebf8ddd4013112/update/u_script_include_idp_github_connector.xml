@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPGitHubConnector</api_name>
+        <client_callable>false</client_callable>
+        <description>GitHub connector for repository, PR, and workflow synchronization.
+
+Uses GitHub REST API v3 + GraphQL for advanced queries.</description>
+        <name>IDPGitHubConnector</name>
+        <script><![CDATA[var IDPGitHubConnector = Class.create();
+IDPGitHubConnector.prototype = {
+    initialize: function() {
+        this.API_BASE = 'https://api.github.com';
+    },
+
+    execute: function(connector, operation, params) {
+        switch (operation) {
+            case 'test':
+                return this.testConnection(connector);
+            case 'sync':
+                return this.syncEntities(connector, params);
+            default:
+                return {success: false, message: 'Unknown operation: ' + operation};
+        }
+    },
+
+    testConnection: function(connector) {
+        try {
+            var response = this.apiRequest(connector, '/user');
+            return {
+                success: response.success,
+                message: response.success ? 'Connected to GitHub as ' + response.data.login : response.error
+            };
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    syncEntities: function(connector, params) {
+        var entityType = params.entityType;
+        var entities = [];
+        var options = params.options || {};
+
+        try {
+            var endpoint = this.getEndpoint(entityType, options);
+            var response = this.apiRequest(connector, endpoint);
+
+            if (!response.success) {
+                return {success: false, message: response.error};
+            }
+
+            var items = Array.isArray(response.data) ? response.data : [response.data];
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                entities.push({
+                    id: item.id.toString(),
+                    type: entityType,
+                    name: item.name || item.title || item.full_name,
+                    data: this.extractEntityData(entityType, item)
+                });
+            }
+
+            return {success: true, entities: entities, message: 'Synced ' + entities.length + ' ' + entityType + 's'};
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    getEndpoint: function(entityType, options) {
+        var owner = options.owner || '';
+        var repo = options.repo || '';
+
+        var endpoints = {
+            'repository': owner ? '/users/' + owner + '/repos' : '/user/repos',
+            'pull_request': '/repos/' + owner + '/' + repo + '/pulls',
+            'workflow_run': '/repos/' + owner + '/' + repo + '/actions/runs',
+            'issue': '/repos/' + owner + '/' + repo + '/issues',
+            'release': '/repos/' + owner + '/' + repo + '/releases'
+        };
+
+        return endpoints[entityType] || '/user/repos';
+    },
+
+    extractEntityData: function(entityType, item) {
+        var data = {
+            id: item.id,
+            name: item.name || item.title,
+            url: item.html_url || item.url,
+            createdAt: item.created_at,
+            updatedAt: item.updated_at
+        };
+
+        switch (entityType) {
+            case 'repository':
+                data.description = item.description;
+                data.language = item.language;
+                data.stars = item.stargazers_count;
+                data.forks = item.forks_count;
+                data.isPrivate = item.private;
+                data.defaultBranch = item.default_branch;
+                break;
+            case 'pull_request':
+                data.state = item.state;
+                data.number = item.number;
+                data.author = item.user ? item.user.login : 'unknown';
+                data.head = item.head ? item.head.ref : '';
+                data.base = item.base ? item.base.ref : '';
+                data.mergeable = item.mergeable;
+                break;
+            case 'workflow_run':
+                data.status = item.status;
+                data.conclusion = item.conclusion;
+                data.event = item.event;
+                data.branch = item.head_branch;
+                data.commitSha = item.head_sha;
+                break;
+            case 'issue':
+                data.state = item.state;
+                data.number = item.number;
+                data.author = item.user ? item.user.login : 'unknown';
+                data.labels = item.labels ? item.labels.map(function(l) { return l.name; }) : [];
+                break;
+        }
+
+        return data;
+    },
+
+    apiRequest: function(connector, endpoint) {
+        try {
+            var request = new sn_ws.RESTMessageV2();
+            var baseUrl = connector.endpoint_url || this.API_BASE;
+            request.setEndpoint(baseUrl + endpoint);
+            request.setHttpMethod('GET');
+            request.setRequestHeader('Authorization', 'Bearer ' + connector.auth_config.accessToken);
+            request.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+            request.setRequestHeader('X-GitHub-Api-Version', '2022-11-28');
+
+            var response = request.execute();
+            var responseBody = response.getBody();
+            var httpStatus = response.getStatusCode();
+
+            if (httpStatus >= 200 && httpStatus < 300) {
+                return {success: true, data: JSON.parse(responseBody)};
+            } else {
+                return {success: false, error: 'HTTP ' + httpStatus};
+            }
+        } catch (e) {
+            return {success: false, error: e.message};
+        }
+    },
+
+    processWebhook: function(data, headers) {
+        var eventType = headers['x-github-event'] || 'unknown';
+        var action = data.action || 'unknown';
+
+        return {
+            success: true,
+            eventType: eventType,
+            action: action,
+            entity: {
+                id: data.repository ? data.repository.id : null,
+                name: data.repository ? data.repository.name : 'unknown',
+                type: 'repository'
+            },
+            details: data
+        };
+    },
+
+    type: 'IDPGitHubConnector'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 09:00:00</sys_created_on>
+        <sys_id>si_github_connector</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPGitHubConnector</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_script_include_idp_github_connector</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 09:00:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_146833_idpkiro.IDPIntegrationEngine</api_name>
+        <client_callable>true</client_callable>
+        <description>Integration Engine for Service Graph Connectors and Workflow Data Fabric.
+
+Supports:
+- Kubernetes cluster sync via Service Graph
+- GitHub/GitLab repository integration
+- AWS/GCP/Azure cloud resource discovery
+- Terraform state synchronization
+- PagerDuty/Datadog/Slack webhooks
+- Real-time entity sync with Workflow Data Fabric</description>
+        <name>IDPIntegrationEngine</name>
+        <script><![CDATA[var IDPIntegrationEngine = Class.create();
+IDPIntegrationEngine.prototype = {
+    initialize: function() {
+        this.TABLE_CONNECTOR = 'x_146833_idpkiro_u_idp_integration_connector';
+        this.TABLE_SYNC = 'x_146833_idpkiro_u_idp_integration_sync';
+        this.TABLE_ENTITY = 'x_146833_idpkiro_u_idp_external_entity';
+        this.TABLE_WEBHOOK = 'x_146833_idpkiro_u_idp_webhook_event';
+        
+        // Supported connector types
+        this.CONNECTOR_TYPES = {
+            'kubernetes': {
+                name: 'Kubernetes',
+                icon: 'kubernetes',
+                entityTypes: ['pod', 'deployment', 'service', 'namespace', 'node'],
+                authType: 'bearer_token',
+                syncInterval: 300
+            },
+            'github': {
+                name: 'GitHub',
+                icon: 'github',
+                entityTypes: ['repository', 'pull_request', 'workflow_run', 'issue'],
+                authType: 'oauth2',
+                syncInterval: 600
+            },
+            'gitlab': {
+                name: 'GitLab',
+                icon: 'git',
+                entityTypes: ['project', 'merge_request', 'pipeline', 'issue'],
+                authType: 'personal_access_token',
+                syncInterval: 600
+            },
+            'aws': {
+                name: 'Amazon Web Services',
+                icon: 'aws',
+                entityTypes: ['lambda_function', 'ec2_instance', 's3_bucket', 'rds_instance', 'ecs_cluster'],
+                authType: 'iam_role',
+                syncInterval: 900
+            },
+            'gcp': {
+                name: 'Google Cloud Platform',
+                icon: 'cloud',
+                entityTypes: ['gce_instance', 'gke_cluster', 'cloud_function', 'bigquery_dataset'],
+                authType: 'service_account',
+                syncInterval: 900
+            },
+            'azure': {
+                name: 'Microsoft Azure',
+                icon: 'azure',
+                entityTypes: ['vm', 'aks_cluster', 'function_app', 'storage_account'],
+                authType: 'service_principal',
+                syncInterval: 900
+            },
+            'pagerduty': {
+                name: 'PagerDuty',
+                icon: 'alert',
+                entityTypes: ['incident', 'service', 'team', 'oncall'],
+                authType: 'api_key',
+                syncInterval: 60
+            },
+            'datadog': {
+                name: 'Datadog',
+                icon: 'monitor',
+                entityTypes: ['monitor', 'dashboard', 'host', 'metric'],
+                authType: 'api_key',
+                syncInterval: 300
+            },
+            'slack': {
+                name: 'Slack',
+                icon: 'chat',
+                entityTypes: ['channel', 'user', 'message'],
+                authType: 'oauth2',
+                syncInterval: 3600
+            },
+            'terraform': {
+                name: 'Terraform Cloud',
+                icon: 'infrastructure',
+                entityTypes: ['workspace', 'run', 'state_version', 'variable'],
+                authType: 'api_token',
+                syncInterval: 600
+            }
+        };
+    },
+
+    /**
+     * Register a new integration connector
+     */
+    registerConnector: function(type, config) {
+        if (!this.CONNECTOR_TYPES[type]) {
+            return {error: 'Unsupported connector type: ' + type};
+        }
+
+        var connectorType = this.CONNECTOR_TYPES[type];
+
+        // Validate required configuration
+        var validation = this.validateConnectorConfig(type, config);
+        if (!validation.valid) {
+            return {error: validation.message};
+        }
+
+        // Create connector record
+        var gr = new GlideRecord(this.TABLE_CONNECTOR);
+        gr.initialize();
+        gr.setValue('connector_type', type);
+        gr.setValue('name', config.name || connectorType.name);
+        gr.setValue('endpoint_url', config.endpointUrl || '');
+        gr.setValue('auth_type', connectorType.authType);
+        gr.setValue('auth_config', JSON.stringify(config.authConfig || {}));
+        gr.setValue('sync_interval', config.syncInterval || connectorType.syncInterval);
+        gr.setValue('sync_enabled', config.syncEnabled !== false);
+        gr.setValue('webhook_url', this.generateWebhookUrl(type));
+        gr.setValue('status', 'pending');
+        gr.setValue('active', true);
+        
+        var connectorId = gr.insert();
+
+        // Test connection
+        var testResult = this.testConnection(connectorId);
+        
+        return {
+            success: true,
+            connectorId: connectorId,
+            webhookUrl: gr.webhook_url.toString(),
+            connectionStatus: testResult.success ? 'connected' : 'failed',
+            message: testResult.message
+        };
+    },
+
+    /**
+     * Validate connector configuration
+     */
+    validateConnectorConfig: function(type, config) {
+        var connectorType = this.CONNECTOR_TYPES[type];
+        
+        switch (connectorType.authType) {
+            case 'bearer_token':
+                if (!config.authConfig || !config.authConfig.token) {
+                    return {valid: false, message: 'Bearer token is required'};
+                }
+                break;
+            case 'oauth2':
+                if (!config.authConfig || !config.authConfig.accessToken) {
+                    return {valid: false, message: 'OAuth2 access token is required'};
+                }
+                break;
+            case 'api_key':
+                if (!config.authConfig || !config.authConfig.apiKey) {
+                    return {valid: false, message: 'API key is required'};
+                }
+                break;
+            case 'iam_role':
+                if (!config.authConfig || !config.authConfig.roleArn) {
+                    return {valid: false, message: 'IAM role ARN is required'};
+                }
+                break;
+            case 'service_account':
+                if (!config.authConfig || !config.authConfig.credentials) {
+                    return {valid: false, message: 'Service account credentials are required'};
+                }
+                break;
+        }
+        
+        return {valid: true};
+    },
+
+    /**
+     * Generate webhook URL for the connector
+     */
+    generateWebhookUrl: function(type) {
+        var instanceUrl = gs.getProperty('glide.servlet.uri');
+        var webhookId = gs.generateGUID();
+        return instanceUrl + 'api/x_146833_idpkiro/webhook/' + type + '/' + webhookId;
+    },
+
+    /**
+     * Test connection to external system
+     */
+    testConnection: function(connectorId) {
+        var connector = this.getConnector(connectorId);
+        if (!connector) {
+            return {success: false, message: 'Connector not found'};
+        }
+
+        try {
+            var result = this.executeConnectorRequest(connector, 'test', {});
+            
+            // Update connector status
+            var gr = new GlideRecord(this.TABLE_CONNECTOR);
+            if (gr.get(connectorId)) {
+                gr.setValue('status', result.success ? 'connected' : 'error');
+                gr.setValue('last_connection_test', new GlideDateTime());
+                gr.setValue('connection_error', result.success ? '' : result.message);
+                gr.update();
+            }
+            
+            return result;
+        } catch (e) {
+            return {success: false, message: e.message};
+        }
+    },
+
+    /**
+     * Get connector by ID
+     */
+    getConnector: function(connectorId) {
+        var gr = new GlideRecord(this.TABLE_CONNECTOR);
+        if (gr.get(connectorId)) {
+            return {
+                sys_id: gr.sys_id.toString(),
+                connector_type: gr.connector_type.toString(),
+                name: gr.name.toString(),
+                endpoint_url: gr.endpoint_url.toString(),
+                auth_type: gr.auth_type.toString(),
+                auth_config: JSON.parse(gr.auth_config.toString() || '{}'),
+                sync_interval: parseInt(gr.sync_interval) || 300,
+                sync_enabled: gr.getValue('sync_enabled') === '1',
+                webhook_url: gr.webhook_url.toString(),
+                status: gr.status.toString(),
+                last_sync: gr.last_sync.toString(),
+                active: gr.getValue('active') === '1'
+            };
+        }
+        return null;
+    },
+
+    /**
+     * Execute sync for a connector
+     */
+    executeSync: function(connectorId, entityType, options) {
+        var connector = this.getConnector(connectorId);
+        if (!connector) {
+            return {error: 'Connector not found'};
+        }
+
+        // Create sync job record
+        var syncId = this.createSyncJob(connectorId, entityType, options);
+
+        try {
+            // Execute connector-specific sync
+            var syncResult = this.executeConnectorRequest(connector, 'sync', {
+                entityType: entityType,
+                options: options || {}
+            });
+
+            // Process sync results
+            if (syncResult.success && syncResult.entities) {
+                this.processSyncResults(syncId, connector, syncResult.entities);
+            }
+
+            // Update sync job
+            this.updateSyncJob(syncId, syncResult.success ? 'completed' : 'failed', syncResult);
+
+            return {
+                success: syncResult.success,
+                syncId: syncId,
+                entitiesProcessed: syncResult.entities ? syncResult.entities.length : 0,
+                message: syncResult.message
+            };
+        } catch (e) {
+            this.updateSyncJob(syncId, 'failed', {error: e.message});
+            return {success: false, syncId: syncId, error: e.message};
+        }
+    },
+
+    /**
+     * Execute connector-specific request
+     */
+    executeConnectorRequest: function(connector, operation, params) {
+        var connectorImpl = this.getConnectorImplementation(connector.connector_type);
+        if (!connectorImpl) {
+            return {success: false, message: 'No implementation for connector type: ' + connector.connector_type};
+        }
+
+        return connectorImpl.execute(connector, operation, params);
+    },
+
+    /**
+     * Get connector implementation based on type
+     */
+    getConnectorImplementation: function(type) {
+        var implementations = {
+            'kubernetes': new IDPKubernetesConnector(),
+            'github': new IDPGitHubConnector(),
+            'gitlab': new IDPGitLabConnector(),
+            'aws': new IDPAWSConnector(),
+            'pagerduty': new IDPPagerDutyConnector(),
+            'datadog': new IDPDatadogConnector(),
+            'slack': new IDPSlackConnector(),
+            'terraform': new IDPTerraformConnector()
+        };
+        return implementations[type];
+    },
+
+    /**
+     * Create sync job record
+     */
+    createSyncJob: function(connectorId, entityType, options) {
+        var gr = new GlideRecord(this.TABLE_SYNC);
+        gr.initialize();
+        gr.setValue('connector', connectorId);
+        gr.setValue('entity_type', entityType);
+        gr.setValue('status', 'running');
+        gr.setValue('started_at', new GlideDateTime());
+        gr.setValue('options', JSON.stringify(options || {}));
+        return gr.insert();
+    },
+
+    /**
+     * Update sync job record
+     */
+    updateSyncJob: function(syncId, status, result) {
+        var gr = new GlideRecord(this.TABLE_SYNC);
+        if (gr.get(syncId)) {
+            gr.setValue('status', status);
+            gr.setValue('completed_at', new GlideDateTime());
+            gr.setValue('result', JSON.stringify(result));
+            gr.update();
+        }
+    },
+
+    /**
+     * Process sync results and update external entities
+     */
+    processSyncResults: function(syncId, connector, entities) {
+        for (var i = 0; i < entities.length; i++) {
+            var entity = entities[i];
+            
+            // Check if entity exists
+            var existing = new GlideRecord(this.TABLE_ENTITY);
+            existing.addQuery('connector', connector.sys_id);
+            existing.addQuery('external_id', entity.id);
+            existing.query();
+
+            if (existing.next()) {
+                // Update existing entity
+                existing.setValue('entity_data', JSON.stringify(entity.data));
+                existing.setValue('last_synced', new GlideDateTime());
+                existing.update();
+            } else {
+                // Create new entity
+                var newEntity = new GlideRecord(this.TABLE_ENTITY);
+                newEntity.initialize();
+                newEntity.setValue('connector', connector.sys_id);
+                newEntity.setValue('external_id', entity.id);
+                newEntity.setValue('entity_type', entity.type);
+                newEntity.setValue('name', entity.name);
+                newEntity.setValue('entity_data', JSON.stringify(entity.data));
+                newEntity.setValue('last_synced', new GlideDateTime());
+                newEntity.insert();
+            }
+        }
+    },
+
+    /**
+     * Process incoming webhook event
+     */
+    processWebhook: function(connectorType, webhookData, headers) {
+        // Log webhook event
+        var eventId = this.logWebhookEvent(connectorType, webhookData, headers);
+
+        try {
+            var connectorImpl = this.getConnectorImplementation(connectorType);
+            if (!connectorImpl) {
+                return {success: false, message: 'Unknown connector type'};
+            }
+
+            var result = connectorImpl.processWebhook(webhookData, headers);
+            
+            // Update webhook event status
+            this.updateWebhookEvent(eventId, 'processed', result);
+            
+            return result;
+        } catch (e) {
+            this.updateWebhookEvent(eventId, 'failed', {error: e.message});
+            return {success: false, error: e.message};
+        }
+    },
+
+    /**
+     * Log webhook event
+     */
+    logWebhookEvent: function(connectorType, data, headers) {
+        var gr = new GlideRecord(this.TABLE_WEBHOOK);
+        gr.initialize();
+        gr.setValue('connector_type', connectorType);
+        gr.setValue('payload', JSON.stringify(data));
+        gr.setValue('headers', JSON.stringify(headers || {}));
+        gr.setValue('received_at', new GlideDateTime());
+        gr.setValue('status', 'pending');
+        return gr.insert();
+    },
+
+    /**
+     * Update webhook event
+     */
+    updateWebhookEvent: function(eventId, status, result) {
+        var gr = new GlideRecord(this.TABLE_WEBHOOK);
+        if (gr.get(eventId)) {
+            gr.setValue('status', status);
+            gr.setValue('processed_at', new GlideDateTime());
+            gr.setValue('result', JSON.stringify(result));
+            gr.update();
+        }
+    },
+
+    /**
+     * Get all connectors
+     */
+    getConnectors: function(activeOnly) {
+        var connectors = [];
+        var gr = new GlideRecord(this.TABLE_CONNECTOR);
+        if (activeOnly) {
+            gr.addQuery('active', true);
+        }
+        gr.query();
+
+        while (gr.next()) {
+            connectors.push({
+                sys_id: gr.sys_id.toString(),
+                connector_type: gr.connector_type.toString(),
+                name: gr.name.toString(),
+                status: gr.status.toString(),
+                last_sync: gr.last_sync.toString()
+            });
+        }
+
+        return connectors;
+    },
+
+    /**
+     * Get external entities by type
+     */
+    getExternalEntities: function(connectorId, entityType) {
+        var entities = [];
+        var gr = new GlideRecord(this.TABLE_ENTITY);
+        gr.addQuery('connector', connectorId);
+        if (entityType) {
+            gr.addQuery('entity_type', entityType);
+        }
+        gr.query();
+
+        while (gr.next()) {
+            entities.push({
+                sys_id: gr.sys_id.toString(),
+                external_id: gr.external_id.toString(),
+                entity_type: gr.entity_type.toString(),
+                name: gr.name.toString(),
+                entity_data: JSON.parse(gr.entity_data.toString() || '{}'),
+                last_synced: gr.last_synced.toString()
+            });
+        }
+
+        return entities;
+    },
+
+    /**
+     * Sync all active connectors
+     */
+    syncAllConnectors: function() {
+        var connectors = this.getConnectors(true);
+        var results = [];
+
+        for (var i = 0; i < connectors.length; i++) {
+            var connector = connectors[i];
+            if (connector.status === 'connected') {
+                var connectorType = this.CONNECTOR_TYPES[connector.connector_type];
+                for (var j = 0; j < connectorType.entityTypes.length; j++) {
+                    var result = this.executeSync(connector.sys_id, connectorType.entityTypes[j], {});
+                    results.push({
+                        connector: connector.name,
+                        entityType: connectorType.entityTypes[j],
+                        success: result.success
+                    });
+                }
+            }
+        }
+
+        return results;
+    },
+
+    type: 'IDPIntegrationEngine'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 09:00:00</sys_created_on>
+        <sys_id>si_integration_engine</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDPIntegrationEngine</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_script_include_idp_integration_engine</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 09:00:00</sys_updated_on>
+    </sys_script_include>
+</record_update>

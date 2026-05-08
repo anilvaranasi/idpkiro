@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sysauto_script">
+    <sysauto_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <condition/>
+        <description>Recalculate all active scorecards - runs daily at 2 AM</description>
+        <name>IDP Scorecard Daily Calculation</name>
+        <run_as display_value="System Administrator">6816f79cc0a8016401c5a33be04be441</run_as>
+        <run_start>2026-05-06 02:00:00</run_start>
+        <run_type>daily</run_type>
+        <script><![CDATA[var engine = new x_146833_idpkiro.IDPScorecardEngine();
+
+// Get all active scorecards
+var scorecards = [];
+var gr = new GlideRecord('x_146833_idpkiro_u_idp_scorecard');
+gr.addQuery('active', true);
+gr.query();
+
+while (gr.next()) {
+    scorecards.push({
+        sys_id: gr.sys_id.toString(),
+        entity_id: gr.entity_id.toString(),
+        name: gr.name.toString()
+    });
+}
+
+// Recalculate each scorecard
+var calculatedCount = 0;
+for (var i = 0; i < scorecards.length; i++) {
+    try {
+        var result = engine.calculateScore(scorecards[i].sys_id, scorecards[i].entity_id);
+        gs.info('Scorecard "' + scorecards[i].name + '" score: ' + result.score);
+        calculatedCount++;
+    } catch (e) {
+        gs.error('Failed to calculate scorecard ' + scorecards[i].name + ': ' + e.message);
+    }
+}
+
+gs.info('IDP Scorecard Daily Calculation: Processed ' + calculatedCount + ' scorecards');]]></script>
+        <sys_class_name>sysauto_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2026-05-06 08:00:00</sys_created_on>
+        <sys_id>sj_scorecard_daily</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>IDP Scorecard Daily Calculation</sys_name>
+        <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+        <sys_update_name>u_scheduled_job_scorecard_calculate</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
+        <upgrade_safe>false</upgrade_safe>
+        <repeat_type>daily</repeat_type>
+        <repeat_count>1</repeat_count>
+        <run_time>1970-01-01 02:00:00</run_time>
+    </sysauto_script>
+</record_update>
