@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_user_role">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_user_role">
     <sys_user_role action="INSERT_OR_UPDATE">
-        <assignable_by display_value=""/>
+        <assignable_by/>
         <can_delegate>true</can_delegate>
         <description>ServiceNow Developer role with DevOps tenant capabilities for end-to-end application lifecycle.</description>
         <elevated_privilege>false</elevated_privilege>
+        <federated_id>sX6chF658+ZQERTUB/RS2c27MWp/gpf7wfVaU6QxNi8=</federated_id>
         <grantable>true</grantable>
-        <includes_roles display_value=""/>
+        <includes_roles/>
         <name>x_146833_idpkiro.sn_developer</name>
-        <requires_subscription>-1</requires_subscription>
         <scoped_admin>false</scoped_admin>
         <suffix>sn_developer</suffix>
         <sys_class_name>sys_user_role</sys_class_name>

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script_include">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>public</access>
         <active>true</active>
         <api_name>x_146833_idpkiro.IDPIntegrationEngine</api_name>
+        <caller_access/>
         <client_callable>true</client_callable>
         <description>Integration Engine for Service Graph Connectors and Workflow Data Fabric.
 
@@ -14,7 +14,9 @@ Supports:
 - Terraform state synchronization
 - PagerDuty/Datadog/Slack webhooks
 - Real-time entity sync with Workflow Data Fabric</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPIntegrationEngine</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var IDPIntegrationEngine = Class.create();
 IDPIntegrationEngine.prototype = {
     initialize: function() {

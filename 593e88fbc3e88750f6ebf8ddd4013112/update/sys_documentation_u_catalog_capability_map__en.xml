@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update>
+    <sys_documentation element="" label="Catalog Capability Map" language="en" table="u_catalog_capability_map">
+        <sys_documentation action="INSERT_OR_UPDATE">
+            <element/>
+            <help/>
+            <hint/>
+            <label>Catalog Capability Map</label>
+            <language>en</language>
+            <name>u_catalog_capability_map</name>
+            <plural>Catalog Capability Maps</plural>
+            <sys_class_name>sys_documentation</sys_class_name>
+            <sys_created_by>admin</sys_created_by>
+            <sys_created_on>2026-05-07 08:55:37</sys_created_on>
+            <sys_id>26a1be0cc370cb50f6ebf8ddd4013101</sys_id>
+            <sys_mod_count>0</sys_mod_count>
+            <sys_name>Catalog Capability Map</sys_name>
+            <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
+            <sys_policy/>
+            <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
+            <sys_update_name>sys_documentation_u_catalog_capability_map__en</sys_update_name>
+            <sys_updated_by>admin</sys_updated_by>
+            <sys_updated_on>2026-05-07 08:55:37</sys_updated_on>
+            <url/>
+            <url_target/>
+        </sys_documentation>
+    </sys_documentation>
+</record_update>

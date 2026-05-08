@@ -4,7 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>Security Engineer / Risk and Compliance Owner persona — read and write access to security and compliance catalog items and audit logs. Cannot execute CI/CD pipelines.</description>
         <elevated_privilege>false</elevated_privilege>
-        <federated_id/>
+        <federated_id>9gHYh5YL2FIF4S4XjTmWF9D20Q6h1Ye7MutGnARv0KE=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>
         <name>x_146833_idpkiro.security_engineer</name>

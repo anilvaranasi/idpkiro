@@ -6,7 +6,9 @@
         <caller_access/>
         <client_callable>false</client_callable>
         <description>IDP AI Orchestration Layer — placeholder implementation for AI-assisted platform capabilities. Provides /ai/ask, /ai/recommend, /ai/summarize endpoints. Designed to connect to external AI providers (AWS Bedrock, ServiceNow Now Assist, or custom LLMs) without modifying portal widgets.</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPAIOrchestrator</name>
+        <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var IDPAIOrchestrator = Class.create();
 IDPAIOrchestrator.prototype = {
 

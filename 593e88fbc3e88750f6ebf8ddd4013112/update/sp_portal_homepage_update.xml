@@ -1,106 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_portal">
     <sp_portal action="INSERT_OR_UPDATE">
-        <active>true</active>
-        <css><![CDATA[/* IDP Kiro — AWS Carbon Design System Theme
- * Carbon Design System tokens mapped to ServiceNow Service Portal
- */
-
-:root {
-  --cds-interactive-01: #0f62fe;
-  --cds-interactive-02: #393939;
-  --cds-ui-background: #ffffff;
-  --cds-ui-01: #f4f4f4;
-  --cds-ui-02: #ffffff;
-  --cds-ui-03: #e0e0e0;
-  --cds-ui-04: #8d8d8d;
-  --cds-ui-05: #161616;
-  --cds-text-01: #161616;
-  --cds-text-02: #525252;
-  --cds-text-03: #a8a8a8;
-  --cds-text-04: #ffffff;
-  --cds-link-01: #0f62fe;
-  --cds-icon-01: #161616;
-  --cds-icon-02: #525252;
-  --cds-field-01: #f4f4f4;
-  --cds-support-01: #da1e28;
-  --cds-support-02: #198038;
-  --cds-support-03: #f1c21b;
-  --cds-focus: #0f62fe;
-  --cds-hover-primary: #0353e9;
-  --cds-hover-ui: #e5e5e5;
-  --cds-active-ui: #c6c6c6;
-  --cds-selected-ui: #e0e0e0;
-  --cds-spacing-03: 0.5rem;
-  --cds-spacing-04: 0.75rem;
-  --cds-spacing-05: 1rem;
-  --cds-spacing-06: 1.5rem;
-  --cds-spacing-07: 2rem;
-}
-
-body, .navbar, .sp-widget, .panel {
-  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
-  color: var(--cds-text-01);
-  background-color: var(--cds-ui-background);
-}
-
-.navbar-default {
-  background-color: var(--cds-ui-05);
-  border: none;
-  height: 48px;
-  min-height: 48px;
-}
-
-.navbar-default .navbar-brand {
-  color: var(--cds-text-04) !important;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 14px 16px;
-  height: 48px;
-}
-
-.navbar-default .navbar-nav > li > a {
-  color: var(--cds-text-04) !important;
-  font-size: 0.875rem;
-  padding: 14px 16px;
-  height: 48px;
-}
-
-.navbar-default .navbar-nav > li > a:hover {
-  background-color: var(--cds-interactive-02);
-  color: var(--cds-text-04) !important;
-}
-
-.btn-primary {
-  background-color: var(--cds-interactive-01);
-  border-color: var(--cds-interactive-01);
-  color: var(--cds-text-04);
-  border-radius: 0;
-  min-height: 3rem;
-}
-
-.btn-primary:hover {
-  background-color: var(--cds-hover-primary);
-  border-color: var(--cds-hover-primary);
-}
-
-/* Remove default SP container padding to let widgets control their own spacing */
-.idp-page-container > .container-fluid {
-  padding: 0;
-}
-
-/* Responsive: hide side nav on mobile */
-@media (max-width: 672px) {
-  .col-md-3 { display: none; }
-  .col-md-9 { width: 100%; }
-}
-]]></css>
-        <default_portal>false</default_portal>
-        <description>IDP Kiro — Internal Developer Portal built on ESC framework with AWS Carbon Design System theme. Capability-driven navigation, multi-persona access, and developer self-service.</description>
-        <enable_browser_title>true</enable_browser_title>
-        <homepage>pg001000000000000000000000001</homepage>
-        <login_page>login</login_page>
-        <max_search_results>20</max_search_results>
-        <search_name>IDP Search</search_name>
+        <alternate_portal/>
+        <communication_channels/>
+        <css_variables/>
+        <dark_theme/>
+        <default>false</default>
+        <embeddable_macroponents/>
+        <enable_ais>false</enable_ais>
+        <enable_certificate_based_authentication>false</enable_certificate_based_authentication>
+        <enable_embeddables>false</enable_embeddables>
+        <enable_favorites>false</enable_favorites>
+        <hide_portal_name>false</hide_portal_name>
+        <homepage display_value="idp_kiro_home">pg001000000000000000000000001</homepage>
+        <icon/>
+        <inactive>false</inactive>
+        <kb_knowledge_base/>
+        <kb_knowledge_page/>
+        <login_page display_value="">login</login_page>
+        <logo/>
+        <logo_alt_text/>
+        <notfound_page/>
+        <quick_start_config/>
+        <rtl_enabled>false</rtl_enabled>
+        <sc_catalog/>
+        <sc_catalog_page/>
+        <sc_category_page/>
+        <search_application/>
+        <search_results_configuration/>
+        <sp_chat_queue/>
+        <sp_rectangle_menu/>
         <sys_class_name>sp_portal</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 05:20:00</sys_created_on>
@@ -113,7 +41,10 @@ body, .navbar, .sp-widget, .panel {
         <sys_update_name>sp_portal_homepage_update</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 05:20:00</sys_updated_on>
+        <theme/>
         <title>IDP Kiro</title>
+        <ts_index_group/>
         <url_suffix>idpkiro</url_suffix>
     </sp_portal>
+    <sys_translated_text action="delete_multiple" query="documentkey=p001000000000000000000000001"/>
 </record_update>

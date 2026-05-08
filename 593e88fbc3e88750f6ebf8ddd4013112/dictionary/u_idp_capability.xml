@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element attributes="enforce_dot_walk_cross_scope_access=true" db_object_id="d0010000000000000000000000000001" label="IDP Capability" max_length="0" name="u_idp_capability" type="collection">
+        <element label="Capability ID" max_length="80" name="capability_id" type="string" unique="true"/>
+        <element label="Icon" max_length="100" name="icon" type="string"/>
+        <element label="Name" max_length="255" name="name" type="string"/>
+        <element label="Description" max_length="1000" name="description" type="string"/>
+        <element default="true" label="Active" max_length="40" name="active" type="boolean"/>
+        <index name="index" unique="true">
+            <element name="capability_id"/>
+        </index>
+    </element>
+</database>

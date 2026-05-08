@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script_include">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>package_private</access>
         <active>true</active>
         <api_name>x_146833_idpkiro.IDPKubernetesConnector</api_name>
+        <caller_access/>
         <client_callable>false</client_callable>
         <description>Kubernetes connector using Service Graph framework.
 
@@ -12,7 +12,9 @@ Syncs:
 - Namespaces, Nodes
 - ConfigMaps, Secrets (metadata only)
 - Ingress, PersistentVolumes</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPKubernetesConnector</name>
+        <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var IDPKubernetesConnector = Class.create();
 IDPKubernetesConnector.prototype = {
     initialize: function() {

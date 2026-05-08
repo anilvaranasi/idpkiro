@@ -4,7 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>Product Owner / Engineering Manager persona — read access to deployment metrics, approval workflows, and service catalog summaries. Cannot write to infrastructure or security items.</description>
         <elevated_privilege>false</elevated_privilege>
-        <federated_id/>
+        <federated_id>4hWHFyQg7R2q9tWapR1eifeBYhKHrdXe8fV53dC92Iw=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>
         <name>x_146833_idpkiro.product_owner</name>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties">
     <sys_properties action="INSERT_OR_UPDATE">
+        <choices/>
         <description>Enable or disable the IDP AI Orchestration Layer. Set to true to activate AI-powered features (requires endpoint and API key configuration).</description>
+        <ignore_cache>false</ignore_cache>
+        <is_private>false</is_private>
         <name>x_146833_idpkiro.ai.enabled</name>
         <read_roles>x_146833_idpkiro.platform_admin</read_roles>
         <suffix>string</suffix>
@@ -20,4 +23,5 @@
         <value>false</value>
         <write_roles>x_146833_idpkiro.platform_admin</write_roles>
     </sys_properties>
+    <sys_translated_text action="delete_multiple" query="documentkey=prop001000000000000000000000001"/>
 </record_update>

@@ -4,7 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>Platform Engineer persona — read and write access to infrastructure catalog items and CI/CD services. Inherits app_developer permissions. Engineers who build and maintain platform infrastructure.</description>
         <elevated_privilege>false</elevated_privilege>
-        <federated_id/>
+        <federated_id>yFHKfUnZCes5zXFB0MMnPf4jkg/QHgRoJueCnek+/lU=</federated_id>
         <grantable>true</grantable>
         <includes_roles>b23e88fbc3e88750f6ebf8ddd4013201</includes_roles>
         <name>x_146833_idpkiro.platform_engineer</name>

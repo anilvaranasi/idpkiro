@@ -4,7 +4,7 @@
         <can_delegate>true</can_delegate>
         <description>Application Developer persona — read access to application catalog items, CI/CD services, and developer home page. Least-privilege role for engineers who build and deploy applications.</description>
         <elevated_privilege>false</elevated_privilege>
-        <federated_id/>
+        <federated_id>/ZNeDG1Kk/25ojbBqdX58e2MDdXQryYYWBFJ7Sv/QMY=</federated_id>
         <grantable>true</grantable>
         <includes_roles/>
         <name>x_146833_idpkiro.app_developer</name>

@@ -6,7 +6,9 @@
         <caller_access/>
         <client_callable>true</client_callable>
         <description>IDP Security enforcement Script Include. Provides server-side capability checks used in ACLs, Business Rules, and Script Includes. UI filtering is NOT security — always use this class for access enforcement.</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPSecurity</name>
+        <sandbox_callable>true</sandbox_callable>
         <script><![CDATA[var IDPSecurity = Class.create();
 IDPSecurity.prototype = Object.extendsObject(AbstractAjaxProcessor, {
 

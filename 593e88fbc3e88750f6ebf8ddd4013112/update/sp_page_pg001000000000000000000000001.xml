@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_page">
     <sp_page action="INSERT_OR_UPDATE">
-        <acss/>
         <category>general</category>
         <css/>
-        <description>IDP Kiro Home Page — unified entry point for all personas. Displays hero section, persona tiles, insights panel, AI assistant, and quick links.</description>
         <draft>false</draft>
+        <dynamic_title_structure/>
+        <human_readable_url_structure/>
         <id>idp_kiro_home</id>
         <internal>false</internal>
+        <omit_watcher>false</omit_watcher>
         <public>false</public>
         <roles>x_146833_idpkiro.user</roles>
+        <seo_script/>
         <short_description>IDP Home</short_description>
         <sys_class_name>sp_page</sys_class_name>
         <sys_created_by>admin</sys_created_by>
@@ -23,5 +25,7 @@
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 05:00:00</sys_updated_on>
         <title>IDP Home</title>
+        <use_seo_script>false</use_seo_script>
     </sp_page>
+    <sys_translated_text action="delete_multiple" query="documentkey=pg001000000000000000000000001"/>
 </record_update>

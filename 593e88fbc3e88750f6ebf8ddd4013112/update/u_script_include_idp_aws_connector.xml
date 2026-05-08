@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script_include">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
     <sys_script_include action="INSERT_OR_UPDATE">
         <access>package_private</access>
         <active>true</active>
         <api_name>x_146833_idpkiro.IDPAWSConnector</api_name>
+        <caller_access/>
         <client_callable>false</client_callable>
         <description>AWS connector using Service Graph Connector framework.
 
@@ -12,7 +12,9 @@ Discovers:
 - S3 buckets, RDS instances
 - ECS clusters, EKS clusters
 - CloudWatch alarms, metrics</description>
+        <mobile_callable>false</mobile_callable>
         <name>IDPAWSConnector</name>
+        <sandbox_callable>false</sandbox_callable>
         <script><![CDATA[var IDPAWSConnector = Class.create();
 IDPAWSConnector.prototype = {
     initialize: function() {

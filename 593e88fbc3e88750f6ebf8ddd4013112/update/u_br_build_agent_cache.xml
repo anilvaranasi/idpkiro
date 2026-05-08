@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_script">
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
     <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access/>
         <action_delete>false</action_delete>
         <action_insert>true</action_insert>
         <action_query>false</action_query>
@@ -8,25 +9,18 @@
         <active>true</active>
         <add_message>false</add_message>
         <advanced>true</advanced>
-        <affected_field/>
-        <affected_table display_value="Build Agent" name="x_146833_idpkiro_u_idp_build_agent">x_146833_idpkiro_u_idp_build_agent</affected_table>
-        <apply_to>set</apply_to>
-        <application/>
-        <applies_extended>false</applies_extended>
-        <callback/>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection/>
         <condition/>
         <description>Invalidate agent selection cache when build agents are modified</description>
-        <field/>
-        <filter_table/>
-        <filter_zone>global</filter_zone>
-        <ignore_cache>false</ignore_cache>
+        <execute_function>false</execute_function>
+        <filter_condition/>
         <is_rest>false</is_rest>
         <message/>
         <name>Invalidate Build Agent Cache</name>
-        <onclick/>
         <order>100</order>
         <priority>100</priority>
-        <read_access_action>read</read_access_action>
         <rest_method/>
         <rest_method_text/>
         <rest_service/>
@@ -44,6 +38,7 @@
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 07:00:00</sys_created_on>
         <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
         <sys_id>br_build_agent_cache</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_name>Invalidate Build Agent Cache</sys_name>
@@ -57,4 +52,5 @@
         <template/>
         <when>after</when>
     </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=br_build_agent_cache"/>
 </record_update>

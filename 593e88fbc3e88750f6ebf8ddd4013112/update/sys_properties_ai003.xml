@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties">
     <sys_properties action="INSERT_OR_UPDATE">
+        <choices/>
         <description>API key for the IDP AI provider. Store securely — only platform_admin can read or write this property.</description>
+        <ignore_cache>false</ignore_cache>
+        <is_private>false</is_private>
         <name>x_146833_idpkiro.ai.api_key</name>
         <read_roles>x_146833_idpkiro.platform_admin</read_roles>
         <suffix>password2</suffix>
@@ -17,7 +20,8 @@
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 04:55:00</sys_updated_on>
         <type>password2</type>
-        <value></value>
+        <value/>
         <write_roles>x_146833_idpkiro.platform_admin</write_roles>
     </sys_properties>
+    <sys_translated_text action="delete_multiple" query="documentkey=prop003000000000000000000000001"/>
 </record_update>

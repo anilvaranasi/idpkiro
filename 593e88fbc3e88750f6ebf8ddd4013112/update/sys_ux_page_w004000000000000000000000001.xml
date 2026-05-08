@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
     <sp_widget action="INSERT_OR_UPDATE">
+        <category/>
         <client_script><![CDATA[function($scope) {
     var c = this;
     // Page title and description driven by options set on the widget instance
@@ -10,7 +11,7 @@
 }
 ]]></client_script>
         <controller_as>c</controller_as>
-        <css><![CDATA[.idp-placeholder { padding: 2rem; }
+        <css>.idp-placeholder { padding: 2rem; }
 .idp-placeholder-title { font-size: 1.75rem; font-weight: 300; color: var(--cds-text-01, #161616); margin-bottom: 0.5rem; }
 .idp-placeholder-desc { font-size: 0.875rem; color: var(--cds-text-02, #525252); margin-bottom: 2rem; }
 .idp-catalog-group { margin-bottom: 2rem; }
@@ -32,7 +33,8 @@
 .idp-tag-beta { background-color: #d0e2ff; color: #0043ce; }
 .idp-tag-ga { background-color: #defbe6; color: #0e6027; }
 .idp-empty { padding: 3rem 2rem; text-align: center; color: var(--cds-text-02, #525252); background-color: var(--cds-ui-01, #f4f4f4); border: 1px dashed var(--cds-ui-04, #8d8d8d); }
-]]></css>
+</css>
+        <data_table/>
         <demo_data/>
         <description>IDP Catalog Page widget — displays capability-filtered catalog items grouped by taxonomy. Used on idp_catalog, idp_pipelines, idp_risk_dashboard, idp_approvals, and idp_api_explorer pages. Page title and description configurable via widget instance options.</description>
         <docs/>
@@ -42,11 +44,11 @@
         <internal>false</internal>
         <link/>
         <name>IDP Catalog Page</name>
-        <option_schema><![CDATA[[
+        <option_schema>[
   {"name":"page_title","label":"Page Title","hint":"Displayed as the page heading","default_value":"Service Catalog","fieldType":"String"},
   {"name":"page_description","label":"Page Description","hint":"Subtitle shown below the heading","default_value":"Browse and request platform services.","fieldType":"String"},
   {"name":"filter_taxonomy","label":"Filter by Taxonomy Name","hint":"Leave blank to show all accessible items. Enter taxonomy name to filter (e.g. CI/CD Services).","default_value":"","fieldType":"String"}
-]]]></option_schema>
+]</option_schema>
         <public>false</public>
         <roles>x_146833_idpkiro.user</roles>
         <script><![CDATA[(function() {

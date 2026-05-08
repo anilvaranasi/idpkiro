@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="sys_ws_operation">
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
     <sys_ws_operation action="INSERT_OR_UPDATE">
         <active>true</active>
         <consumes>application/json</consumes>
         <consumes_customized>false</consumes_customized>
-        <default_operation_uri>/api/x_146833_idpkiro/action/execute</default_operation_uri>
-        <operation_name>execute_action</operation_name>
+        <default_operation_uri/>
+        <enforce_acl/>
+        <http_method/>
+        <name/>
         <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
     var body = request.body.data;
     
@@ -22,13 +23,16 @@
     response.setStatus(200);
     response.setBody(result);
 })(request, response);]]></operation_script>
+        <operation_uri>/api/action/execute</operation_uri>
         <produces>application/json</produces>
         <produces_customized>false</produces_customized>
         <relative_path>/action/execute</relative_path>
         <request_example/>
         <requires_acl_authorization>true</requires_acl_authorization>
         <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>false</requires_snc_internal_role>
         <short_description>Execute a self-service action</short_description>
+        <support_trailing_slash>false</support_trailing_slash>
         <sys_class_name>sys_ws_operation</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 08:00:00</sys_created_on>
@@ -41,7 +45,7 @@
         <sys_update_name>u_rest_api_action_execute</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
-        <web_service_definition display_value="IDP Kiro API">ws_def_idp_kiro</web_service_definition>
-        <web_service_function/>
+        <web_service_definition display_value="">ws_def_idp_kiro</web_service_definition>
+        <web_service_version/>
     </sys_ws_operation>
 </record_update>
