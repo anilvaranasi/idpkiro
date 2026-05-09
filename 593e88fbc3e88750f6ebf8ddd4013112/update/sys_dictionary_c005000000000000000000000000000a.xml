@@ -12,7 +12,7 @@
         <language>en</language>
         <mandatory>false</mandatory>
         <max_length>40</max_length>
-        <name>u_idp_navigation_item</name>
+        <name>x_146833_idpkiro_u_idp_navigation_item</name>
         <read_only>false</read_only>
         <reference/>
         <sys_class_name>sys_dictionary</sys_class_name>

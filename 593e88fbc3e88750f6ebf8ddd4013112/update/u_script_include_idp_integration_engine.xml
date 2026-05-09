@@ -18,10 +18,10 @@ Supports:
         <script><![CDATA[var IDPIntegrationEngine = Class.create();
 IDPIntegrationEngine.prototype = {
     initialize: function() {
-        this.TABLE_CONNECTOR = 'x_146833_idpkiro_u_idp_integration_connector';
-        this.TABLE_SYNC = 'x_146833_idpkiro_u_idp_integration_sync';
-        this.TABLE_ENTITY = 'x_146833_idpkiro_u_idp_external_entity';
-        this.TABLE_WEBHOOK = 'x_146833_idpkiro_u_idp_webhook_event';
+        this.TABLE_CONNECTOR = 'u_idp_integration_connector';
+        this.TABLE_SYNC = 'u_idp_integration_sync';
+        this.TABLE_ENTITY = 'u_idp_external_entity';
+        this.TABLE_WEBHOOK = 'u_idp_webhook_event';
         
         // Supported connector types
         this.CONNECTOR_TYPES = {

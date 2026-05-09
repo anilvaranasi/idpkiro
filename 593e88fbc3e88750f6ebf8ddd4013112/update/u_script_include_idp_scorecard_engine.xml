@@ -17,9 +17,9 @@ Port.io-equivalent Scorecard Features:
         <script><![CDATA[var IDPScorecardEngine = Class.create();
 IDPScorecardEngine.prototype = {
     initialize: function() {
-        this.TABLE_SCORECARD = 'x_146833_idpkiro_u_idp_scorecard';
-        this.TABLE_RULE = 'x_146833_idpkiro_u_idp_scorecard_rule';
-        this.TABLE_RESULT = 'x_146833_idpkiro_u_idp_scorecard_result';
+        this.TABLE_SCORECARD = 'u_idp_scorecard';
+        this.TABLE_RULE = 'u_idp_scorecard_rule';
+        this.TABLE_RESULT = 'u_idp_scorecard_result';
         this.CACHE_KEY = 'idp_scorecard_cache';
         this.CACHE_TTL = 300; // 5 minutes
     },

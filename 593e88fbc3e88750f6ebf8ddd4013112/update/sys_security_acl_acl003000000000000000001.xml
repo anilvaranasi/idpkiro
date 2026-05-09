@@ -5,7 +5,7 @@
         <advanced>true</advanced>
         <condition/>
         <description>READ access to u_idp_navigation_item — requires x_146833_idpkiro.user role. Capability filtering is done in IDPNavigationEngine, not here.</description>
-        <name>u_idp_navigation_item</name>
+        <name>x_146833_idpkiro_u_idp_navigation_item</name>
         <operation>read</operation>
         <script><![CDATA[answer = gs.hasRole('x_146833_idpkiro.user');]]></script>
         <sys_class_name>sys_security_acl</sys_class_name>

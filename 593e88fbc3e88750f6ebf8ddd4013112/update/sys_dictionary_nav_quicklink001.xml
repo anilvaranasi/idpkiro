@@ -49,7 +49,7 @@
         <sys_created_on>2026-05-06 04:58:00</sys_created_on>
         <sys_id>dict_nav_quicklink_0000000000001</sys_id>
         <sys_mod_count>0</sys_mod_count>
-        <sys_name>x_146833_idpkiro_u_idp_navigation_item.quick_link</sys_name>
+        <sys_name>u_idp_navigation_item.quick_link</sys_name>
         <sys_package display_value="idpkiro" source="x_146833_idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_package>
         <sys_policy/>
         <sys_scope display_value="idpkiro">593e88fbc3e88750f6ebf8ddd4013112</sys_scope>
