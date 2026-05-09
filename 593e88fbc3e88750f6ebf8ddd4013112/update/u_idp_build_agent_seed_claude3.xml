@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="u_idp_build_agent">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_build_agent">
     <u_idp_build_agent action="INSERT_OR_UPDATE">
         <active>true</active>
         <agent_id>agent_claude3_opus</agent_id>
@@ -12,7 +12,7 @@
         <quality_score>95</quality_score>
         <speed_score>60</speed_score>
         <specializations>code_generation, architecture, code_review, documentation, security</specializations>
-        <sys_class_name>u_idp_build_agent</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_build_agent</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 07:00:00</sys_created_on>
         <sys_id>ba_claude3_opus</sys_id>

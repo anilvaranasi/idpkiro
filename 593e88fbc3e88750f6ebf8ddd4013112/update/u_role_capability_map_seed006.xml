@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- product_owner: manage_approvals -->
-<record_update table="u_role_capability_map">
+﻿<?xml version="1.0" encoding="UTF-8"?><!-- product_owner: manage_approvals -->
+<record_update table="x_146833_idpkiro_u_role_capability_map">
     <u_role_capability_map action="INSERT_OR_UPDATE">
         <capability>cap006000000000000000000000001</capability>
         <role>b23e88fbc3e88750f6ebf8ddd4013205</role>
-        <sys_class_name>u_role_capability_map</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_role_capability_map</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 04:45:00</sys_created_on>
         <sys_id>rcm006000000000000000000000001</sys_id>

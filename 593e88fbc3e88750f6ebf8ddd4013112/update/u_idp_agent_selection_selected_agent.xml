@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <record_update table="sys_dictionary">
     <sys_dictionary action="INSERT_OR_UPDATE">
         <active>true</active>
@@ -37,7 +37,7 @@
         <primary>false</primary>
         <read_only>false</read_only>
         <read_roles/>
-        <reference display_value="Build Agent" table="u_idp_build_agent">u_idp_build_agent</reference>
+        <reference display_value="Build Agent" table="x_146833_idpkiro_u_idp_build_agent">x_146833_idpkiro_u_idp_build_agent</reference>
         <reference_cascade_rule/>
         <reference_floats>false</reference_floats>
         <reference_key/>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><record_update table="u_idp_navigation_item">
+﻿<?xml version="1.0" encoding="UTF-8"?><record_update table="x_146833_idpkiro_u_idp_navigation_item">
     <u_idp_navigation_item action="INSERT_OR_UPDATE">
         <active>true</active>
         <icon>catalog</icon>
@@ -9,7 +9,7 @@
         <required_capabilities/>
         <taxonomy>tax001000000000000000000000001</taxonomy>
         <url>/idpkiro?id=sc_home</url>
-        <sys_class_name>u_idp_navigation_item</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_navigation_item</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 04:40:00</sys_created_on>
         <sys_id>nav001000000000000000000000001</sys_id>

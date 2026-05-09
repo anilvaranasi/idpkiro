@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="u_idp_capability">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_capability">
     <u_idp_capability action="INSERT_OR_UPDATE">
         <active>true</active>
         <capability_id>cap_run_atf</capability_id>
         <description>Execute Automated Test Framework (ATF) test suites for ServiceNow application validation.</description>
         <icon>test</icon>
         <name>Run ATF Tests</name>
-        <sys_class_name>u_idp_capability</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_capability</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>cap_sn_dev_005</sys_id>

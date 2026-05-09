@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><record_update table="u_idp_navigation_item">
+﻿<?xml version="1.0" encoding="UTF-8"?><record_update table="x_146833_idpkiro_u_idp_navigation_item">
     <u_idp_navigation_item action="INSERT_OR_UPDATE">
         <active>true</active>
         <icon>warning</icon>
@@ -9,7 +9,7 @@
         <required_capabilities>cap003000000000000000000000001</required_capabilities>
         <taxonomy>tax003000000000000000000000001</taxonomy>
         <url>/idpkiro?id=idp_incidents</url>
-        <sys_class_name>u_idp_navigation_item</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_navigation_item</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 04:40:00</sys_created_on>
         <sys_id>nav005000000000000000000000001</sys_id>

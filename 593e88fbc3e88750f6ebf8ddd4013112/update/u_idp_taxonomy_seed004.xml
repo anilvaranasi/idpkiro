@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><record_update table="u_idp_taxonomy">
+﻿<?xml version="1.0" encoding="UTF-8"?><record_update table="x_146833_idpkiro_u_idp_taxonomy">
     <u_idp_taxonomy action="INSERT_OR_UPDATE">
         <active>true</active>
         <icon>security</icon>
         <name>Security &amp; Compliance</name>
         <order>40</order>
-        <sys_class_name>u_idp_taxonomy</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_taxonomy</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 04:30:00</sys_created_on>
         <sys_id>tax004000000000000000000000001</sys_id>

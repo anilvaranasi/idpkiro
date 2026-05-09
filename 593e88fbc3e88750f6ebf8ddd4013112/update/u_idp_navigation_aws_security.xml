@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="u_idp_navigation_item">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_navigation_item">
     <u_idp_navigation_item action="INSERT_OR_UPDATE">
         <active>true</active>
         <icon>shield</icon>
@@ -10,7 +10,7 @@
         <required_capabilities>cap_aws_run_security_scan</required_capabilities>
         <taxonomy display_value="DevSecOps Console">tax_devsecops_001</taxonomy>
         <url>/idpkiro/aws/security</url>
-        <sys_class_name>u_idp_navigation_item</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_navigation_item</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>nav_aws_003</sys_id>

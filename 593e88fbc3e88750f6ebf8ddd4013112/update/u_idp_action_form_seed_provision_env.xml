@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="u_idp_action_form">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_idp_action_form">
     <u_idp_action_form action="INSERT_OR_UPDATE">
         <active>true</active>
         <category>Infrastructure</category>
@@ -31,7 +31,7 @@ return {
         <requires_approval>true</requires_approval>
         <title>Provision Dev Environment</title>
         <ttl_enabled>true</ttl_enabled>
-        <sys_class_name>u_idp_action_form</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_idp_action_form</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 08:00:00</sys_created_on>
         <sys_id>form_provision_env</sys_id>

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- cap_manage_infra → Platform Operations -->
-<record_update table="u_capability_taxonomy_map">
+﻿<?xml version="1.0" encoding="UTF-8"?><!-- cap_manage_infra â†’ Platform Operations -->
+<record_update table="x_146833_idpkiro_u_capability_taxonomy_map">
     <u_capability_taxonomy_map action="INSERT_OR_UPDATE">
         <capability>cap007000000000000000000000001</capability>
         <taxonomy>tax002000000000000000000000001</taxonomy>
-        <sys_class_name>u_capability_taxonomy_map</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_capability_taxonomy_map</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 04:50:00</sys_created_on>
         <sys_id>ctm007000000000000000000000001</sys_id>

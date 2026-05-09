@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record_update table="u_role_capability_map">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_146833_idpkiro_u_role_capability_map">
     <u_role_capability_map action="INSERT_OR_UPDATE">
         <role display_value="x_146833_idpkiro.sn_developer">role_sn_dev_001</role>
         <capability display_value="Run ATF Tests">cap_sn_dev_005</capability>
-        <sys_class_name>u_role_capability_map</sys_class_name>
+        <sys_class_name>x_146833_idpkiro_u_role_capability_map</sys_class_name>
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2026-05-06 06:00:00</sys_created_on>
         <sys_id>rcm_sn_005</sys_id>
