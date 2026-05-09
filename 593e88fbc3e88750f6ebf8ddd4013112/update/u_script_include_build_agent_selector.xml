@@ -28,8 +28,8 @@ Selection Algorithm:
         <script><![CDATA[var BuildAgentSelector = Class.create();
 BuildAgentSelector.prototype = {
     initialize: function() {
-        this.TABLE_BUILD_AGENT = 'x_146833_idpkiro_u_idp_build_agent';
-        this.TABLE_SELECTION = 'x_146833_idpkiro_u_idp_agent_selection';
+        this.TABLE_BUILD_AGENT = 'u_idp_build_agent';
+        this.TABLE_SELECTION = 'u_idp_agent_selection';
         this.CACHE_KEY = 'idp_build_agent_registry';
         this.CACHE_TTL = 300; // 5 minutes
         

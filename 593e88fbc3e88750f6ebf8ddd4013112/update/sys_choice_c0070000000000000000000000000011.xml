@@ -6,7 +6,7 @@
         <inactive>false</inactive>
         <label>Beta</label>
         <language>en</language>
-        <name>u_idp_service_catalog_meta</name>
+        <name>x_146833_idpkiro_u_idp_service_catalog_meta</name>
         <sequence>20</sequence>
         <sys_class_name>sys_choice</sys_class_name>
         <sys_created_by>admin</sys_created_by>

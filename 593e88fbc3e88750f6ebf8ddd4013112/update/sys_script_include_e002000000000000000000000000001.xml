@@ -67,7 +67,7 @@ IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
     getUserRoles: function(userId) {
         try {
             // Check persona override
-            var override = new GlideRecord('x_146833_idpkiro_u_user_persona_override');
+            var override = new GlideRecord('u_user_persona_override');
             override.addQuery('user', userId);
             override.setLimit(1);
             override.query();
@@ -110,7 +110,7 @@ IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             var capSysIds = [];
             var seen = {};
 
-            var rcm = new GlideRecord('x_146833_idpkiro_u_role_capability_map');
+            var rcm = new GlideRecord('u_role_capability_map');
             rcm.addQuery('role', 'IN', roles.join(','));
             rcm.query();
             while (rcm.next()) {
@@ -127,7 +127,7 @@ IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             }
 
             var activeCaps = [];
-            var cap = new GlideRecord('x_146833_idpkiro_u_idp_capability');
+            var cap = new GlideRecord('u_idp_capability');
             cap.addQuery('sys_id', 'IN', capSysIds.join(','));
             cap.addQuery('active', true);
             cap.query();
@@ -157,7 +157,7 @@ IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             var taxSysIds = [];
             var seen = {};
 
-            var ctm = new GlideRecord('x_146833_idpkiro_u_capability_taxonomy_map');
+            var ctm = new GlideRecord('u_capability_taxonomy_map');
             ctm.addQuery('capability', 'IN', capabilities.join(','));
             ctm.query();
             while (ctm.next()) {
@@ -173,7 +173,7 @@ IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             }
 
             var taxonomies = [];
-            var tax = new GlideRecord('x_146833_idpkiro_u_idp_taxonomy');
+            var tax = new GlideRecord('u_idp_taxonomy');
             tax.addQuery('sys_id', 'IN', taxSysIds.join(','));
             tax.addQuery('active', true);
             tax.orderBy('order');
@@ -209,7 +209,7 @@ IDPNavigationEngine.prototype = Object.extendsObject(AbstractAjaxProcessor, {
             }
 
             var items = [];
-            var nav = new GlideRecord('x_146833_idpkiro_u_idp_navigation_item');
+            var nav = new GlideRecord('u_idp_navigation_item');
             nav.addQuery('active', true);
             nav.orderBy('order');
             nav.query();

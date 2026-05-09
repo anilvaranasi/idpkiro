@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <record_update table="x_146833_idpkiro_u_idp_action_form">
-    <x_146833_idpkiro_u_idp_action_form action="INSERT_OR_UPDATE">
+    <u_idp_action_form action="INSERT_OR_UPDATE">
         <active>true</active>
         <category>Infrastructure</category>
         <default_ttl_hours>8</default_ttl_hours>
@@ -43,5 +43,5 @@ return {
         <sys_update_name>u_idp_action_form_provision_env</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 08:00:00</sys_updated_on>
-    </x_146833_idpkiro_u_idp_action_form>
+    </u_idp_action_form>
 </record_update>

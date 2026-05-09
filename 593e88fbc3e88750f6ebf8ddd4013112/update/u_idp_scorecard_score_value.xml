@@ -25,11 +25,11 @@
         <foreign_database/>
         <formula><![CDATA[(
   SELECT SUM(result_value) 
-  FROM x_146833_idpkiro_u_idp_scorecard_result 
+  FROM u_idp_scorecard_result 
   WHERE scorecard = sys_id AND active = true
 ) / NULLIF(
   SELECT COUNT(*) 
-  FROM x_146833_idpkiro_u_idp_scorecard_result 
+  FROM u_idp_scorecard_result 
   WHERE scorecard = sys_id AND active = true
 , 0) * 100]]></formula>
         <function_definition/>

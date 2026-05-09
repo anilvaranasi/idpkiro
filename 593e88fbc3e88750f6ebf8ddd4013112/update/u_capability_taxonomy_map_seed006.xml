@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><!-- cap_manage_approvals → Product & Demand Management -->
+﻿<?xml version="1.0" encoding="UTF-8"?><!-- cap_manage_approvals â†’ Product & Demand Management -->
 <record_update table="x_146833_idpkiro_u_capability_taxonomy_map">
-    <x_146833_idpkiro_u_capability_taxonomy_map action="INSERT_OR_UPDATE">
+    <u_capability_taxonomy_map action="INSERT_OR_UPDATE">
         <capability>cap006000000000000000000000001</capability>
         <taxonomy>tax005000000000000000000000001</taxonomy>
         <sys_class_name>x_146833_idpkiro_u_capability_taxonomy_map</sys_class_name>
@@ -14,5 +14,5 @@
         <sys_update_name>u_capability_taxonomy_map_seed006</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
         <sys_updated_on>2026-05-06 04:50:00</sys_updated_on>
-    </x_146833_idpkiro_u_capability_taxonomy_map>
+    </u_capability_taxonomy_map>
 </record_update>

@@ -18,12 +18,12 @@ Features:
         <script><![CDATA[var IDPSelfServiceEngine = Class.create();
 IDPSelfServiceEngine.prototype = {
     initialize: function() {
-        this.TABLE_FORM = 'x_146833_idpkiro_u_idp_action_form';
-        this.TABLE_FIELD = 'x_146833_idpkiro_u_idp_form_field';
-        this.TABLE_EXECUTION = 'x_146833_idpkiro_u_idp_action_execution';
-        this.TABLE_APPROVAL = 'x_146833_idpkiro_u_idp_approval_flow';
-        this.TABLE_APPROVAL_STEP = 'x_146833_idpkiro_u_idp_approval_step';
-        this.TABLE_TTL = 'x_146833_idpkiro_u_idp_ttl_resource';
+        this.TABLE_FORM = 'u_idp_action_form';
+        this.TABLE_FIELD = 'u_idp_form_field';
+        this.TABLE_EXECUTION = 'u_idp_action_execution';
+        this.TABLE_APPROVAL = 'u_idp_approval_flow';
+        this.TABLE_APPROVAL_STEP = 'u_idp_approval_step';
+        this.TABLE_TTL = 'u_idp_ttl_resource';
     },
 
     /**

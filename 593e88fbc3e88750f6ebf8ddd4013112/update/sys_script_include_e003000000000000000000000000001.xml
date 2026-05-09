@@ -62,7 +62,7 @@ IDPCatalogEngine.prototype = {
 
             // Get all catalog items that have IDP capability mappings
             var mappedItemIds = {};
-            var ccm = new GlideRecord('x_146833_idpkiro_u_catalog_capability_map');
+            var ccm = new GlideRecord('u_catalog_capability_map');
             ccm.query();
             while (ccm.next()) {
                 var itemId = ccm.getValue('catalog_item');
@@ -136,7 +136,7 @@ IDPCatalogEngine.prototype = {
 
             // Build taxonomy name lookup
             var taxNames = {};
-            var tax = new GlideRecord('x_146833_idpkiro_u_idp_taxonomy');
+            var tax = new GlideRecord('u_idp_taxonomy');
             tax.addQuery('active', true);
             tax.query();
             while (tax.next()) {
@@ -185,7 +185,7 @@ IDPCatalogEngine.prototype = {
             }
 
             // Check if item has any capability mappings
-            var ccm = new GlideRecord('x_146833_idpkiro_u_catalog_capability_map');
+            var ccm = new GlideRecord('u_catalog_capability_map');
             ccm.addQuery('catalog_item', catalogItemSysId);
             ccm.query();
 
@@ -239,7 +239,7 @@ IDPCatalogEngine.prototype = {
         var itemIds = items.map(function(i) { return i.sys_id; });
         var metaMap = {};
 
-        var meta = new GlideRecord('x_146833_idpkiro_u_idp_service_catalog_meta');
+        var meta = new GlideRecord('u_idp_service_catalog_meta');
         meta.addQuery('catalog_item', 'IN', itemIds.join(','));
         meta.addQuery('active', true);
         meta.query();

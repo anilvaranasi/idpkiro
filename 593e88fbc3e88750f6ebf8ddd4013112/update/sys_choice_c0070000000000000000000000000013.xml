@@ -6,7 +6,7 @@
         <inactive>false</inactive>
         <label>Deprecated</label>
         <language>en</language>
-        <name>u_idp_service_catalog_meta</name>
+        <name>x_146833_idpkiro_u_idp_service_catalog_meta</name>
         <sequence>40</sequence>
         <sys_class_name>sys_choice</sys_class_name>
         <sys_created_by>admin</sys_created_by>
